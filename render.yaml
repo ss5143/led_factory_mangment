@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: led-factory
+    runtime: python
+    plan: free
+    buildCommand: bash build.sh
+    startCommand: gunicorn led_factory.wsgi:application
+    healthCheckPath: /
+    envVars:
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_ALLOWED_HOSTS
+        value: led-factory.onrender.com
+       - key: DJANGO_CSRF_TRUSTED_ORIGINS
+        value: https://led-factory.onrender.com
+      - key: DATABASE_URL
+        fromDatabase:
+          name: led-factory-db
+          property: connectionString
+      - key: PYTHON_VERSION
+        value: 3.14.7
+
+databases:
+  - name: led-factory-db
+    plan: free
