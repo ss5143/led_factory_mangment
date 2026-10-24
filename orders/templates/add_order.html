@@ -1,0 +1,513 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="card shadow">
+
+        <div class="card-header bg-dark text-white">
+            <h4 class="mb-0">💰 New Sale</h4>
+        </div>
+
+        <div class="card-body">
+
+            <form method="post">
+
+                {% csrf_token %}
+
+                {{ form.non_field_errors }}
+
+                <!-- CUSTOMER -->
+
+                <div class="mb-4">
+
+                    <label class="form-label fw-bold">
+                        👤 Customer Name
+                    </label>
+
+                    {{ form.customer_name }}
+
+                    {% for error in form.customer_name.errors %}
+                        <div class="text-danger">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- PRODUCTS -->
+
+                <div class="mb-4">
+
+                    <div class="products-header"
+                         onclick="toggleProducts()">
+
+                        <label class="form-label fw-bold mb-0">
+                            💡 Select Products
+                        </label>
+
+                        <span id="productArrow"
+                              class="product-arrow">
+                            ▶
+                        </span>
+
+                    </div>
+
+
+                    <div id="productsBox"
+                         class="products-box hidden">
+
+                        {% for product in products %}
+
+                        <!-- PRODUCT SELECT -->
+
+                        <div class="product-select-row">
+
+                            <label class="product-check">
+
+                                
+                            <input
+                                type="checkbox"
+                               class="product-checkbox"
+                               data-id="{{ product.id }}"
+                                onchange="toggleProduct('{{ product.id }}')"
+                            >
+
+
+                                <span class="bulb-icon">💡</span>
+
+                                <strong>
+                                    {{ product.category }} - {{ product.watt }}W
+                                </strong>
+
+                                <small>
+                                    Stock: {{ product.stock }} pcs
+                                </small>
+
+                            </label>
+
+                        </div>
+
+
+                        <!-- SELECTED PRODUCT BOX -->
+
+                        <div id="selectedProduct_{{ product.id }}"
+                             class="selected-product-box hidden">
+
+                            <div class="selected-product-title">
+
+                                <span>💡</span>
+
+                                <strong>
+                                    {{ product.category }} - {{ product.watt }}W
+                                </strong>
+
+                            </div>
+
+                            <div class="stock-text">
+                                Stock: {{ product.stock }} pcs
+                            </div>
+
+
+                            <div class="product-inputs">
+
+                                <!-- QUANTITY -->
+
+                                <div class="input-group-box">
+
+                                    <label>
+                                        Quantity
+                                    </label>
+
+                                    <div class="input-with-label">
+
+                                        <input
+                                            type="number"
+                                            name="quantity_{{ product.id }}"
+                                            class="form-control"
+                                            min="1"
+                                            max="{{ product.stock }}"
+                                            value="1"
+                                        >
+
+                                        <span>pcs</span>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- PRICE -->
+
+                                <div class="input-group-box">
+
+                                    <label>
+                                        Sale Price
+                                    </label>
+
+                                    <div class="input-with-label">
+
+                                        <span class="rs">
+                                            Rs.
+                                        </span>
+
+                                        <input
+                                            type="number"
+                                            name="sale_price_{{ product.id }}"
+                                            class="form-control"
+                                            min="0"
+                                            step="0.01"
+                                            value="0.00"
+                                            placeholder="0.00"
+                                        >
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        {% empty %}
+
+                        <div class="alert alert-warning m-3">
+                            No products found.
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <!-- BUTTON -->
+
+                <button
+                    type="submit"
+                    class="btn btn-success">
+                    💾 Save Complete Order
+                </button>
+
+
+                <a
+                    href="{% url 'orders:orders' %}"
+                    class="btn btn-secondary">
+                    📋 Orders
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+/* ============================= */
+/* PRODUCTS HEADER */
+/* ============================= */
+
+.products-header {
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:14px 18px;
+
+    border:1px solid #dee2e6;
+
+    border-radius:12px;
+
+    cursor:pointer;
+
+    background:#fff;
+
+    user-select:none;
+
+}
+
+.products-header:hover {
+    background:#f8f9fa;
+}
+
+.product-arrow {
+
+    font-size:18px;
+
+    font-weight:bold;
+
+}
+
+
+/* ============================= */
+/* PRODUCTS BOX */
+/* ============================= */
+
+.products-box {
+
+    margin-top:8px;
+
+    border:1px solid #dee2e6;
+
+    border-radius:12px;
+
+    overflow:hidden;
+
+    background:#fff;
+
+}
+
+.hidden {
+    display:none !important;
+}
+
+
+/* ============================= */
+/* PRODUCT SELECT ROW */
+/* ============================= */
+
+.product-select-row {
+
+    padding:15px 18px;
+
+    border-bottom:1px solid #eee;
+
+}
+
+.product-check {
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    cursor:pointer;
+
+    width:100%;
+
+}
+
+.product-checkbox {
+
+    width:20px;
+
+    height:20px;
+
+    cursor:pointer;
+
+}
+
+.bulb-icon {
+    font-size:20px;
+}
+
+.product-check small {
+
+    margin-left:auto;
+
+    color:#777;
+
+}
+
+
+/* ============================= */
+/* SELECTED PRODUCT */
+/* ============================= */
+
+.selected-product-box {
+
+    margin:10px 15px 15px 15px;
+
+    padding:16px;
+
+    border:2px solid #198754;
+
+    border-radius:12px;
+
+    background:#f8fff9;
+
+}
+
+.selected-product-title {
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    font-size:17px;
+
+}
+
+.stock-text {
+
+    margin-top:5px;
+
+    color:#6c757d;
+
+    font-size:14px;
+
+}
+
+
+/* ============================= */
+/* INPUTS */
+/* ============================= */
+
+.product-inputs {
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:15px;
+
+    margin-top:15px;
+
+}
+
+.input-group-box label {
+
+    display:block;
+
+    font-weight:600;
+
+    margin-bottom:6px;
+
+}
+
+.input-with-label {
+
+    display:flex;
+
+    align-items:center;
+
+    gap:7px;
+
+}
+
+.input-with-label input {
+
+    text-align:center;
+
+    font-weight:600;
+
+}
+
+.input-with-label span {
+
+    font-weight:bold;
+
+    white-space:nowrap;
+
+}
+
+.rs {
+    color:#198754;
+}
+
+
+/* ============================= */
+/* MOBILE */
+/* ============================= */
+
+@media (max-width:700px) {
+
+    .product-check {
+
+        flex-wrap:wrap;
+
+    }
+
+    .product-check small {
+
+        width:100%;
+
+        margin-left:30px;
+
+    }
+
+    .product-inputs {
+
+        grid-template-columns:1fr;
+
+    }
+
+}
+
+</style>
+
+
+<script>
+
+/* ============================= */
+/* OPEN / CLOSE PRODUCTS */
+/* ============================= */
+
+function toggleProducts() {
+
+    const box =
+        document.getElementById("productsBox");
+
+    const arrow =
+        document.getElementById("productArrow");
+
+    box.classList.toggle("hidden");
+
+    if (box.classList.contains("hidden")) {
+
+        arrow.textContent = "▶";
+
+    } else {
+
+        arrow.textContent = "▼";
+
+    }
+
+}
+
+
+/* ============================= */
+/* SELECT PRODUCT */
+/* ============================= */
+
+function toggleProduct(productId) {
+
+    const checkbox =
+        document.querySelector(
+            '.product-checkbox[data-id="' + productId + '"]'
+        );
+
+    const box =
+        document.getElementById(
+            "selectedProduct_" + productId
+        );
+
+    if (checkbox.checked) {
+
+        box.classList.remove("hidden");
+
+    } else {
+
+        box.classList.add("hidden");
+
+    }
+
+}
+
+</script>
+
+{% endblock %}

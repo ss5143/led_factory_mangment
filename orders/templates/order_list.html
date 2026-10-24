@@ -1,0 +1,461 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid mt-4">
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-red">
+                📋 Sales Orders
+            </h2>
+
+            <p class="text-dark mb-0">
+                Complete Sales History
+            </p>
+        </div>
+
+        <div>
+            <a href="{% url 'orders:add_order' %}" class="btn btn-success">
+                ➕ New Sale
+            </a>
+
+            <a href="{% url 'home' %}" class="btn btn-secondary">
+                🏠 Dashboard
+            </a>
+        </div>
+    </div>
+
+
+    <!-- ORDERS CARD -->
+    <div class="card shadow-sm border-0 orders-card">
+
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">
+                🧾 All Orders
+            </h5>
+        </div>
+
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle orders-table">
+
+                    <!-- TABLE HEADER -->
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Customer</th>
+                            <th>Products</th>
+                            <th>Total Qty</th>
+                            <th>Total Price</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+
+                    <!-- TABLE BODY -->
+                    <tbody>
+
+                    {% for order in orders %}
+
+                        <tr>
+
+                            <!-- ORDER ID -->
+                            <td>
+                                <strong class="text-white">
+                                    #{{ order.id }}
+                                </strong>
+                            </td>
+
+
+                            <!-- CUSTOMER -->
+                            <td>
+                                <span class="customer-name">
+                                    👤 {{ order.customer_name }}
+                                </span>
+                            </td>
+
+
+                            <!-- PRODUCTS -->
+                            <td>
+                                <div class="order-products">
+
+                                    {% for item in order.items.all %}
+
+                                        <div class="product-line">
+
+                                            <span class="product-icon">💡</span>
+
+                                            <strong class="product-name">
+                                                {{ item.product.category }}
+                                            </strong>
+
+                                            <span class="watt">
+                                                {{ item.product.watt }}W
+                                            </span>
+
+                                            <span class="multiply">
+                                                ×
+                                            </span>
+
+                                            <span class="badge bg-primary">
+                                                {{ item.quantity }}
+                                            </span>
+
+                                        </div>
+
+                                    {% empty %}
+
+                                        <span class="text-muted">
+                                            No products
+                                        </span>
+
+                                    {% endfor %}
+
+                                </div>
+                            </td>
+
+
+                            <!-- TOTAL QUANTITY -->
+                            <td>
+                                <span class="badge bg-primary">
+                                    {{ order.total_quantity }}
+                                </span>
+                            </td>
+
+
+                            <!-- TOTAL PRICE -->
+                            <td>
+                                <strong class="price-text">
+                                    Rs. {{ order.total_price }}
+                                </strong>
+                            </td>
+
+
+                
+                            <!-- DATE -->
+                            <td>
+                                <span class="date-text">
+                                    {{ order.created_at|date:"d M Y h:i A" }}
+                                </span>
+                            </td>
+
+
+                            <!-- STATUS -->
+                            <td>
+
+                                {% if order.status == "Pending" %}
+
+                                    <span class="badge bg-warning text-dark">
+                                        ⏳ Pending
+                                    </span>
+
+                                    <br>
+
+                                    <a
+                                        href="{% url 'orders:mark_paid' order.id %}"
+                                        class="btn btn-success btn-sm mt-2"
+                                        onclick="return confirm('Mark this order as Paid?')"
+                                    >
+                                        ✅ Paid
+                                    </a>
+
+
+                                {% elif order.status == "Paid" %}
+
+                                    <span class="badge bg-success">
+                                        ✅ Paid
+                                    </span>
+
+
+                                {% elif order.status == "Delivered" %}
+
+                                    <span class="badge bg-info">
+                                        🚚 Delivered
+                                    </span>
+
+
+                                {% elif order.status == "Cancelled" %}
+
+                                    <span class="badge bg-danger">
+                                        ❌ Cancelled
+                                    </span>
+
+
+                                {% else %}
+
+                                    <span class="badge bg-secondary">
+                                        {{ order.status }}
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- ACTIONS -->
+                            <td>
+
+                                <div class="action-buttons">
+
+                                    <!-- EDIT -->
+                                    <a
+                                        href="{% url 'orders:edit_order' order.id %}"
+                                        class="btn btn-primary btn-sm"
+                                    >
+                                        ✏️ Edit
+                                    </a>
+
+
+                                    <!-- DELETE -->
+                                    <form
+                                        method="POST"
+                                        action="{% url 'orders:delete_order' order.id %}"
+                                        style="display:inline;"
+                                        onsubmit="return confirm(
+                                            'Are you sure you want to delete Order #{{ order.id }}? Stock will be restored.'
+                                        );"
+                                    >
+
+                                        {% csrf_token %}
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-danger btn-sm"
+                                        >
+                                            🗑️ Delete
+                                        </button>
+
+                                    </form>
+
+
+                                    <!-- INVOICE -->
+                                    <a
+                                        href="{% url 'orders:invoice' order.id %}"
+                                        class="btn btn-info btn-sm"
+                                    >
+                                        🧾 Invoice
+                                    </a>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+
+                    {% empty %}
+
+                        <!-- NO ORDERS -->
+                        <tr>
+
+                            <td colspan="9" class="text-center py-5">
+
+                                <h4 class="text-white">
+                                    📭 No Orders Found
+                                </h4>
+
+                                <p class="text-light">
+                                    There are no sales orders yet.
+                                </p>
+
+                                <a
+                                    href="{% url 'orders:add_order' %}"
+                                    class="btn btn-success"
+                                >
+                                    ➕ Create New Sale
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- STYLE -->
+<style>
+
+.orders-card {
+    background: #1e293b !important;
+    color: #999090 !important;
+    border-radius: 18px;
+    overflow: hidden;
+}
+
+.orders-card .card-header {
+    background: #111827 !important;
+    color: #ffffff !important;
+    padding: 16px 20px;
+}
+
+.orders-card .card-body {
+    background: #1e293b !important;
+}
+
+
+/* TABLE */
+
+.orders-table {
+    background: #1e293b !important;
+    color: #ffffff !important;
+    margin-bottom: 0;
+}
+
+.orders-table thead {
+    background: linear-gradient(90deg, #16a34a, #22c55e);
+}
+
+.orders-table thead th {
+    color: #e40505 !important;
+    border: none !important;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.orders-table tbody td {
+    background: #0f172a !important;
+    color: #7b6f8f !important;
+    border-color: #334155 !important;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.orders-table tbody tr:hover td {
+    background: #1e293b !important;
+}
+
+
+/* CUSTOMER */
+
+.customer-name {
+    color: #ffffff !important;
+    font-weight: 500;
+}
+
+
+/* PRODUCTS */
+
+.order-products {
+    min-width: 250px;
+    text-align: left;
+}
+
+.product-line {
+    padding: 6px 0;
+    white-space: nowrap;
+    color: #ffffff !important;
+}
+
+.product-icon {
+    margin-right: 5px;
+}
+
+.product-name {
+    color: #ffffff !important;
+}
+
+.watt {
+    color: #22c55e !important;
+    font-weight: 700;
+    margin-left: 4px;
+}
+
+.multiply {
+    color: #cbd5e1 !important;
+    margin: 0 5px;
+}
+
+
+/* PRICE */
+
+.price-text {
+    color: #22c55e !important;
+}
+
+
+/* DATE */
+
+.date-text {
+    color: #e5e7eb !important;
+    white-space: nowrap;
+}
+
+
+/* BADGES */
+
+.badge {
+    padding: 6px 9px;
+    border-radius: 7px;
+}
+
+
+/* BUTTONS */
+
+.btn-sm {
+    margin: 2px;
+    border-radius: 7px;
+}
+
+
+/* ACTIONS */
+
+.action-buttons {
+    min-width: 230px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-buttons form {
+    margin: 0;
+}
+
+
+/* ALIGNMENT */
+
+.orders-table td,
+.orders-table th {
+    vertical-align: middle;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 768px) {
+
+    .order-products {
+        min-width: 200px;
+    }
+
+    .action-buttons {
+        min-width: 180px;
+    }
+
+}
+
+</style>
+
+{% endblock %}

@@ -1,0 +1,780 @@
+```html
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+
+    /* =========================
+       INVOICE PAGE
+    ========================= */
+
+    .invoice-page {
+        max-width: 950px;
+        margin: 30px auto;
+        color: #e5e7eb;
+    }
+
+    .invoice-card {
+        background: #0f172a;
+        border: 1px solid #334155;
+        border-radius: 22px;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+    }
+
+
+    /* =========================
+       HEADER
+    ========================= */
+
+    .invoice-header {
+        background: linear-gradient(
+            135deg,
+            #020617,
+            #111827,
+            #14532d
+        );
+        padding: 35px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid #22c55e;
+    }
+
+    .company-area {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+
+    .invoice-logo {
+        width: 85px;
+        height: 85px;
+        object-fit: contain;
+        border-radius: 18px;
+        border: 2px solid #22c55e;
+        padding: 5px;
+        background: #020617;
+        box-shadow: 0 0 25px rgba(34, 197, 94, 0.35);
+    }
+
+    .company-name {
+        font-size: 30px;
+        font-weight: 800;
+        color: #22c55e;
+        margin: 0;
+        text-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+    }
+
+    .company-tagline {
+        color: #bbf7d0;
+        margin: 5px 0 0;
+        font-size: 14px;
+    }
+
+    .company-info {
+        color: #94a3b8;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    .invoice-title {
+        text-align: right;
+    }
+
+    .invoice-title h1 {
+        color: white;
+        font-size: 42px;
+        font-weight: 800;
+        margin: 0;
+        letter-spacing: 2px;
+    }
+
+    .invoice-number {
+        color: #22c55e;
+        font-weight: 600;
+        margin-top: 5px;
+    }
+
+    .invoice-date {
+        color: #94a3b8;
+        font-size: 13px;
+    }
+
+
+    /* =========================
+       BODY
+    ========================= */
+
+    .invoice-body {
+        padding: 35px;
+    }
+
+    .billing-section {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 35px;
+    }
+
+    .section-label {
+        color: #22c55e;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .customer-name {
+        color: white;
+        font-size: 20px;
+        font-weight: 700;
+        margin-top: 7px;
+    }
+
+    .customer-id {
+        color: #94a3b8;
+        font-size: 13px;
+        margin-top: 4px;
+    }
+
+    .paid-badge {
+        background: rgba(34, 197, 94, 0.15);
+        color: #4ade80;
+        border: 1px solid #22c55e;
+        padding: 10px 25px;
+        border-radius: 30px;
+        font-weight: 700;
+        display: inline-block;
+    }
+
+    .pending-badge {
+        background: rgba(245, 158, 11, 0.15);
+        color: #fbbf24;
+        border: 1px solid #f59e0b;
+        padding: 10px 25px;
+        border-radius: 30px;
+        font-weight: 700;
+        display: inline-block;
+    }
+
+
+    /* =========================
+       TABLE
+    ========================= */
+
+    .invoice-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        overflow: hidden;
+        border-radius: 14px;
+        border: 1px solid #334155;
+    }
+
+    .invoice-table thead {
+        background: linear-gradient(
+            90deg,
+            #166534,
+            #22c55e
+        );
+    }
+
+    .invoice-table th {
+        color: #ffffff !important;
+        padding: 15px;
+        font-size: 13px;
+        text-transform: uppercase;
+        border: none;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .invoice-table td {
+        background: #111827 !important;
+        color: #e5e7eb !important;
+        padding: 18px 15px;
+        border-top: 1px solid #334155;
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    .invoice-table tbody tr:hover td {
+        background: #1e293b !important;
+    }
+
+
+    /* =========================
+       PRODUCT
+    ========================= */
+
+    .product-name {
+        color: #ffffff !important;
+        font-weight: 700;
+    }
+
+    .product-icon {
+        font-size: 20px;
+        margin-right: 5px;
+    }
+
+    .watt-badge {
+        background: #f59e0b;
+        color: #111827 !important;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 12px;
+        display: inline-block;
+    }
+
+    .qty-badge {
+        background: #2563eb;
+        color: white !important;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 12px;
+        display: inline-block;
+    }
+
+    .price {
+        color: #cbd5e1 !important;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .total-price {
+        color: #4ade80 !important;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+
+    /* =========================
+       TOTALS
+    ========================= */
+
+    .totals-wrapper {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 30px;
+    }
+
+    .totals-box {
+        width: 350px;
+    }
+
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 5px;
+        color: #94a3b8;
+    }
+
+    .total-row strong {
+        color: white;
+    }
+
+    .grand-total {
+        margin-top: 10px;
+        padding: 18px 20px;
+        border-radius: 14px;
+        background: linear-gradient(
+            135deg,
+            #15803d,
+            #22c55e
+        );
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 18px;
+        font-weight: 800;
+        box-shadow: 0 8px 25px rgba(34, 197, 94, 0.25);
+    }
+
+
+    /* =========================
+       FOOTER
+    ========================= */
+
+    .invoice-footer {
+        margin-top: 45px;
+        padding-top: 25px;
+        border-top: 1px solid #334155;
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+    }
+
+    .thank-you h4 {
+        color: #22c55e;
+        font-weight: 800;
+    }
+
+    .thank-you p {
+        color: #64748b;
+        margin: 5px 0;
+        font-size: 13px;
+    }
+
+    .signature {
+        text-align: center;
+        width: 180px;
+    }
+
+    .signature-line {
+        border-top: 1px solid #64748b;
+        margin-bottom: 8px;
+    }
+
+    .signature small {
+        color: #94a3b8;
+    }
+
+
+    /* =========================
+       BUTTONS
+    ========================= */
+
+    .invoice-actions {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .invoice-actions .btn {
+        border-radius: 10px;
+        font-weight: 600;
+    }
+
+
+    /* =========================
+       RESPONSIVE
+    ========================= */
+
+    @media (max-width: 768px) {
+
+        .invoice-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 25px;
+        }
+
+        .invoice-title {
+            text-align: left;
+        }
+
+        .billing-section {
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .invoice-body {
+            padding: 20px;
+        }
+
+        .invoice-table {
+            font-size: 12px;
+        }
+
+        .invoice-table th,
+        .invoice-table td {
+            padding: 10px 7px;
+        }
+
+        .totals-wrapper {
+            justify-content: stretch;
+        }
+
+        .totals-box {
+            width: 100%;
+        }
+
+        .invoice-footer {
+            flex-direction: column;
+            gap: 30px;
+            align-items: flex-start;
+        }
+    }
+
+
+    /* =========================
+       PRINT
+    ========================= */
+
+    @media print {
+
+        body {
+            background: white !important;
+        }
+
+        .invoice-page {
+            margin: 0;
+            max-width: 100%;
+        }
+
+        .invoice-actions {
+            display: none !important;
+        }
+
+        .invoice-card {
+            box-shadow: none;
+            border: none;
+        }
+    }
+
+</style>
+
+
+<div class="invoice-page">
+
+
+    <!-- =========================
+         ACTION BUTTONS
+    ========================= -->
+
+    <div class="invoice-actions">
+
+        <button
+            onclick="window.print()"
+            class="btn btn-success"
+        >
+            🖨️ Print Invoice
+        </button>
+
+
+        <a
+            href="{% url 'orders:invoice_pdf' order.id %}"
+            class="btn btn-dark"
+        >
+            📄 Download PDF
+        </a>
+
+
+        <a
+            href="{% url 'orders:orders' %}"
+            class="btn btn-secondary"
+        >
+            ← Back to Orders
+        </a>
+
+    </div>
+
+
+    <!-- =========================
+         INVOICE
+    ========================= -->
+
+    <div class="invoice-card">
+
+
+        <!-- HEADER -->
+
+        <div class="invoice-header">
+
+            <div class="company-area">
+
+                {% load static %}
+
+                <img
+                    src="{% static 'images/logo.png' %}"
+                    class="invoice-logo"
+                    alt="LED Factory Logo"
+                >
+
+
+                <div>
+
+                    <h1 class="company-name">
+                        LED FACTORY
+                    </h1>
+
+                    <p class="company-tagline">
+                        Premium LED Lighting Solutions
+                    </p>
+
+                    <div class="company-info">
+                        Mangla road Dina, Pakistan
+                        <br>
+                        📞 +92 3465811678
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="invoice-title">
+
+                <h1>
+                    INVOICE
+                </h1>
+
+                <div class="invoice-number">
+                    #INV-{{ order.id }}
+                </div>
+
+                <div class="invoice-date">
+                    {{ order.created_at|date:"d M Y" }}
+                    <br>
+                    {{ order.created_at|date:"h:i A" }}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- BODY -->
+
+        <div class="invoice-body">
+
+
+            <!-- BILLING -->
+
+            <div class="billing-section">
+
+                <div>
+
+                    <div class="section-label">
+                        BILL TO
+                    </div>
+
+                    <div class="customer-name">
+                        👤 {{ order.customer_name|default:"Walk-in Customer" }}
+                    </div>
+
+                    {% if order.customer %}
+
+                        <div class="customer-id">
+                            Customer ID: {{ order.customer.id }}
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div>
+
+                    {% if order.status == "Paid" %}
+
+                        <span class="paid-badge">
+                            ✓ PAID
+                        </span>
+
+                    {% elif order.status == "Delivered" %}
+
+                        <span class="paid-badge">
+                            ✓ DELIVERED
+                        </span>
+
+                    {% else %}
+
+                        <span class="pending-badge">
+                            ⏳ {{ order.status|upper }}
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 PRODUCT TABLE
+            ========================= -->
+
+            <table class="invoice-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>#</th>
+                        <th>Product</th>
+                        <th>Watt</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Total</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for item in order.items.all %}
+
+                    <tr>
+
+                        <td>
+                            {{ forloop.counter|stringformat:"02d" }}
+                        </td>
+
+
+                        <!-- PRODUCT -->
+
+                        <td>
+
+                            <span class="product-name">
+                                <span class="product-icon">💡</span>
+                                {{ item.product.category }}
+                            </span>
+
+                        </td>
+
+
+                        <!-- WATT -->
+
+                        <td>
+
+                            <span class="watt-badge">
+                                {{ item.product.watt }}W
+                            </span>
+
+                        </td>
+
+
+                        <!-- QUANTITY -->
+
+                        <td>
+
+                            <span class="qty-badge">
+                                {{ item.quantity }} pcs
+                            </span>
+
+                        </td>
+
+
+                        <!-- UNIT PRICE -->
+
+                        <td class="price">
+                            Rs. {{ item.unit_price }}
+                        </td>
+
+
+                        <!-- TOTAL -->
+
+                        <td class="text-end total-price">
+                            Rs. {{ item.total_price }}
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td colspan="6">
+                            No products found
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+
+            <!-- =========================
+                 TOTALS
+            ========================= -->
+
+            <div class="totals-wrapper">
+
+                <div class="totals-box">
+
+                    <div class="total-row">
+
+                        <span>
+                            Subtotal
+                        </span>
+
+                        <strong>
+                            Rs. {{ order.total_price }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="total-row">
+
+                        <span>
+                            Discount
+                        </span>
+
+                        <strong>
+                            Rs. 0.00
+                        </strong>
+
+                    </div>
+
+
+                    <div class="grand-total">
+
+                        <span>
+                            GRAND TOTAL
+                        </span>
+
+                        <span>
+                            Rs. {{ order.total_price }}
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 FOOTER
+            ========================= -->
+
+            <div class="invoice-footer">
+
+                <div class="thank-you">
+
+                    <h4>
+                        Thank You! 💚
+                    </h4>
+
+                    <p>
+                        Thank you for choosing LED Factory.
+                    </p>
+
+                    <p>
+                        We appreciate your business.
+                    </p>
+
+                </div>
+
+
+                <div class="signature">
+
+                    <div class="signature-line"></div>
+
+                    <small>
+                        Authorized Signature
+                    </small>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+</div>
+
+
+{% endblock %}

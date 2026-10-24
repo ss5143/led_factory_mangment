@@ -1,0 +1,405 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div style="
+    max-width:1000px;
+    margin:30px auto;
+    padding:25px;
+    background:#ffffff;
+    border-radius:15px;
+    box-shadow:0 5px 25px rgba(0,0,0,0.08);
+">
+
+<!-- HEADER -->
+
+<div style="
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+">
+
+    <div>
+
+        <h2 style="margin:0;">
+            ✏️ Edit Order #{{ order.id }}
+        </h2>
+
+        <p style="margin-top:8px;">
+            Customer:
+            <strong>{{ order.customer_name }}</strong>
+        </p>
+
+    </div>
+
+    <a href="{% url 'orders:orders' %}"
+       style="
+       text-decoration:none;
+       background:#6b7280;
+       color:white;
+       padding:10px 18px;
+       border-radius:8px;
+       ">
+        ← Back
+    </a>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- CURRENT ORDER PRODUCTS -->
+<!-- ========================= -->
+
+<h3>📦 Order Products</h3>
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    <table style="
+        width:100%;
+        border-collapse:collapse;
+        margin-top:15px;
+    ">
+
+        <thead>
+
+            <tr style="background:#166534;color:white;">
+
+                <th style="padding:12px;text-align:left;">
+                    Product
+                </th>
+
+                <th style="padding:12px;">
+                    Current Qty
+                </th>
+
+                <th style="padding:12px;">
+                    New Qty
+                </th>
+
+                <th style="padding:12px;">
+                    Sale Price
+                </th>
+
+                <th style="padding:12px;">
+                    Action
+                </th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            {% for item in items %}
+
+            <tr style="border-bottom:1px solid #ddd;">
+
+                <!-- PRODUCT -->
+
+                <td style="padding:12px;">
+
+                    💡
+
+                    <strong>
+                        {{ item.product.category }}
+                    </strong>
+
+                    <span style="
+                        background:#2563eb;
+                        color:white;
+                        padding:4px 8px;
+                        border-radius:5px;
+                        font-size:13px;
+                        margin-left:5px;
+                    ">
+                        {{ item.product.watt }}W
+                    </span>
+
+                </td>
+
+
+                <!-- CURRENT QTY -->
+
+                <td style="
+                    padding:12px;
+                    text-align:center;
+                ">
+
+                    {{ item.quantity }}
+
+                </td>
+
+
+                <!-- NEW QTY -->
+
+                <td style="
+                    padding:12px;
+                    text-align:center;
+                ">
+
+                    <input
+                        type="number"
+                        name="quantity_{{ item.id }}"
+                        value="{{ item.quantity }}"
+                        min="0"
+                        style="
+                            width:100px;
+                            padding:8px;
+                            border:1px solid #ccc;
+                            border-radius:6px;
+                            text-align:center;
+                        "
+                    >
+
+                </td>
+
+
+                <!-- SALE PRICE EDITABLE -->
+
+                <td style="
+                    padding:12px;
+                    text-align:center;
+                ">
+
+                    <div style="
+                        display:flex;
+                        align-items:center;
+                        justify-content:center;
+                        gap:5px;
+                    ">
+
+                        <span style="
+                            font-weight:bold;
+                            color:#374151;
+                        ">
+                            Rs.
+                        </span>
+
+                        <input
+                            type="number"
+                            name="sale_price_{{ item.id }}"
+                            value="{{ item.unit_price }}"
+                            min="0"
+                            step="0.01"
+                            required
+                            style="
+                                width:130px;
+                                padding:8px;
+                                border:1px solid #2563eb;
+                                border-radius:6px;
+                                text-align:center;
+                                font-weight:bold;
+                                color:#111827;
+                                background:#f8fafc;
+                            "
+                        >
+
+                    </div>
+
+                </td>
+
+
+                <!-- DELETE -->
+
+                <td style="
+                    padding:12px;
+                    text-align:center;
+                ">
+
+                    <button
+                        type="submit"
+                        name="delete_item"
+                        value="{{ item.id }}"
+                        onclick="
+                            return confirm(
+                                'Delete {{ item.product.category }} - {{ item.product.watt }}W from this order?'
+                            );
+                        "
+                        style="
+                            background:#dc2626;
+                            color:white;
+                            border:0;
+                            padding:8px 14px;
+                            border-radius:7px;
+                            cursor:pointer;
+                        "
+                    >
+                        🗑️ Delete
+                    </button>
+
+                </td>
+
+            </tr>
+
+            {% empty %}
+
+            <tr>
+
+                <td
+                    colspan="5"
+                    style="
+                        padding:30px;
+                        text-align:center;
+                        color:#777;
+                    "
+                >
+                    No products in this order.
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+
+    <!-- UPDATE BUTTON -->
+
+    <div style="
+        margin-top:20px;
+        display:flex;
+        gap:10px;
+    ">
+
+        <button
+            type="submit"
+            name="update_order"
+            value="1"
+            style="
+                background:#166534;
+                color:white;
+                border:0;
+                padding:12px 22px;
+                border-radius:8px;
+                cursor:pointer;
+                font-size:15px;
+                font-weight:bold;
+            "
+        >
+            💾 Update Order
+        </button>
+
+
+        <a
+            href="{% url 'orders:orders' %}"
+            style="
+                background:#6b7280;
+                color:white;
+                padding:12px 22px;
+                border-radius:8px;
+                text-decoration:none;
+            "
+        >
+            Cancel
+        </a>
+
+    </div>
+
+</form>
+
+<!-- ========================= -->
+<!-- ADD NEW PRODUCT -->
+<!-- ========================= -->
+
+<div class="mt-4">
+
+    <h4>➕ Add Product to This Order</h4>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <div class="mb-3">
+
+            <label class="form-label">
+                <strong>Product</strong>
+            </label>
+
+            <select
+                name="product_id"
+                class="form-control"
+                required
+            >
+
+                <option value="">
+                    -- Select Product --
+                </option>
+
+                {% for product in available_products %}
+
+                    <option value="{{ product.id }}">
+
+                        {{ product.category }} - {{ product.watt }}W
+                        — Rs. {{ product.sale_price }}
+                        — Stock: {{ product.stock }}
+
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+
+        <div class="mb-3">
+
+            <label class="form-label">
+                <strong>Quantity</strong>
+            </label>
+
+            <input
+                type="number"
+                name="quantity"
+                class="form-control"
+                min="1"
+                value="1"
+                required
+            >
+
+        </div>
+
+
+        <div class="mb-3">
+
+            <label class="form-label">
+                <strong>Sale Price</strong>
+            </label>
+
+            <input
+                type="number"
+                name="sale_price"
+                class="form-control"
+                min="0"
+                step="0.01"
+                value="0.00"
+                required
+            >
+
+        </div>
+
+
+        <button
+            type="submit"
+            name="add_product"
+            value="1"
+            class="btn btn-success"
+        >
+            ➕ Add Product
+        </button>
+
+    </form>
+
+</div>
+
+
+
+</div>
+
+{% endblock %}

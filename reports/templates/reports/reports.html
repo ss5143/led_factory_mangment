@@ -1,0 +1,824 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid mt-4">
+
+    <!-- =========================
+         HEADER
+    ========================== -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h2 class="fw-bold">📊 Business Reports</h2>
+
+            <p class="text-muted mb-0">
+                LED Factory Business Summary
+            </p>
+        </div>
+
+        <a href="/" class="btn btn-dark">
+            🏠 Dashboard
+        </a>
+
+    </div>
+
+
+    <!-- =========================
+         SUMMARY CARDS
+    ========================== -->
+
+    <div class="row g-4 mb-4">
+
+        <!-- TOTAL SALES -->
+        <div class="col-md-4">
+
+            <div class="card bg-success text-white shadow-sm border-0 summary-card">
+
+                <div class="card-body">
+
+                    <h6>💰 Total Sales</h6>
+
+                    <h2 class="fw-bold mb-0">
+                        Rs. {{ total_sales|floatformat:2 }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- TOTAL PURCHASED -->
+        <div class="col-md-4">
+
+            <div class="card bg-primary text-white shadow-sm border-0 summary-card">
+
+                <div class="card-body">
+
+                    <h6>📦 Total Purchased Qty</h6>
+
+                    <h2 class="fw-bold mb-0">
+                        {{ total_purchased }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- PURCHASE AMOUNT -->
+        <div class="col-md-4">
+
+            <div class="card bg-warning text-dark shadow-sm border-0 summary-card">
+
+                <div class="card-body">
+
+                    <h6>🚚 Purchase Amount</h6>
+
+                    <h2 class="fw-bold mb-0">
+                        Rs. {{ total_purchase_amount|floatformat:2 }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         SALES REPORT
+    ========================== -->
+
+    <div class="card shadow-sm border-0 mb-4 report-card">
+
+        <div class="card-header bg-dark text-white">
+
+            <h5 class="mb-0">
+                🛒 Sales Report
+            </h5>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle sales-table">
+
+                    <thead class="table-dark">
+
+                        <tr>
+
+                            <th class="col-id">
+                                #
+                            </th>
+
+                            <th class="col-customer">
+                                Customer
+                            </th>
+
+                            <th class="col-products">
+                                Products
+                            </th>
+
+                            <th class="col-qty">
+                                Total Qty
+                            </th>
+
+                            <th class="col-total">
+                                Total
+                            </th>
+
+                            <th class="col-date">
+                                Date
+                            </th>
+
+                            <th class="col-status">
+                                Status
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                    {% for order in orders %}
+
+                        <tr>
+
+                            <!-- ORDER ID -->
+                            <td>
+
+                                <strong>
+                                    #{{ order.id }}
+                                </strong>
+
+                            </td>
+
+
+                            <!-- CUSTOMER -->
+                            <td>
+
+                                <div class="customer-name">
+                                    👤 {{ order.customer_name }}
+                                </div>
+
+                            </td>
+
+
+                            <!-- PRODUCTS -->
+                            <td>
+
+                                <div class="products-list">
+
+                                    {% for item in order.items.all %}
+
+                                        <div class="product-box">
+
+                                            <!-- PRODUCT CATEGORY -->
+                                            <div class="product-name">
+
+                                                💡
+
+                                                <strong>
+                                                    {{ item.product.category }}
+                                                </strong>
+
+                                            </div>
+
+
+                                            <!-- PRODUCT DETAILS -->
+                                            <div class="product-details">
+
+                                                <span class="watt-badge">
+                                                    ⚡ {{ item.product.watt }}W
+                                                </span>
+
+
+                                                <span class="quantity-badge">
+                                                    Qty: {{ item.quantity }}
+                                                </span>
+
+                                            </div>
+
+                                        </div>
+
+                                    {% empty %}
+
+                                        <span class="text-muted">
+                                            No products
+                                        </span>
+
+                                    {% endfor %}
+
+                                </div>
+
+                            </td>
+
+
+                            <!-- TOTAL QUANTITY -->
+                            <td>
+
+                                <span class="total-qty-badge">
+                                    {{ order.total_quantity }}
+                                </span>
+
+                            </td>
+
+
+                            <!-- TOTAL PRICE -->
+                            <td>
+
+                                <strong class="total-price">
+
+                                    Rs.
+                                    {{ order.total_price|floatformat:2 }}
+
+                                </strong>
+
+                            </td>
+
+
+                            <!-- DATE -->
+                            <td>
+
+                                <div class="date-text">
+                                    {{ order.created_at|date:"d M Y" }}
+                                </div>
+
+                                <small class="time-text">
+                                    {{ order.created_at|date:"h:i A" }}
+                                </small>
+
+                            </td>
+
+
+                            <!-- STATUS -->
+                            <td>
+
+                                {% if order.status == "Pending" %}
+
+                                    <span class="status-badge status-pending">
+                                        ⏳ Pending
+                                    </span>
+
+                                {% elif order.status == "Paid" %}
+
+                                    <span class="status-badge status-paid">
+                                        ✅ Paid
+                                    </span>
+
+                                {% elif order.status == "Delivered" %}
+
+                                    <span class="status-badge status-delivered">
+                                        🚚 Delivered
+                                    </span>
+
+                                {% elif order.status == "Cancelled" %}
+
+                                    <span class="status-badge status-cancelled">
+                                        ❌ Cancelled
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="status-badge status-other">
+                                        {{ order.status }}
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+
+                    {% empty %}
+
+                        <tr>
+
+                            <td
+                                colspan="7"
+                                class="text-center py-5"
+                            >
+
+                                <h4>
+                                    📭 No Sales Found
+                                </h4>
+
+                                <p class="text-muted mb-0">
+                                    No sales orders have been created yet.
+                                </p>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         PURCHASE REPORT
+    ========================== -->
+
+    <div class="card shadow-sm border-0 report-card">
+
+        <div class="card-header bg-success text-white">
+
+            <h5 class="mb-0">
+                🚚 Purchase Report
+            </h5>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle purchase-table">
+
+                    <thead class="table-dark">
+
+                        <tr>
+
+                            <th>#</th>
+
+                            <th>
+                                Supplier
+                            </th>
+
+                            <th>
+                                Product
+                            </th>
+
+                            <th>
+                                Qty
+                            </th>
+
+                            <th>
+                                Purchase Price
+                            </th>
+
+                            <th>
+                                Total
+                            </th>
+
+                            <th>
+                                Date
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                    {% for purchase in purchases %}
+
+                        <tr>
+
+                            <!-- ID -->
+                            <td>
+
+                                <strong>
+                                    #{{ purchase.id }}
+                                </strong>
+
+                            </td>
+
+
+                            <!-- SUPPLIER -->
+                            <td>
+
+                                <div class="supplier-name">
+                                    🚚 {{ purchase.supplier }}
+                                </div>
+
+                            </td>
+
+
+                            <!-- PRODUCT -->
+                            <td>
+
+                                <div class="purchase-product-box">
+
+                                    <div class="product-name">
+
+                                        💡
+
+                                        <strong>
+                                            {{ purchase.product.category }}
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div class="product-details">
+
+                                        <span class="watt-badge">
+                                            ⚡ {{ purchase.product.watt }}W
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+
+                            <!-- QTY -->
+                            <td>
+
+                                <span class="total-qty-badge">
+                                    {{ purchase.quantity }}
+                                </span>
+
+                            </td>
+
+
+                            <!-- PURCHASE PRICE -->
+                            <td>
+
+                                Rs.
+                                {{ purchase.purchase_price|floatformat:2 }}
+
+                            </td>
+
+
+                            <!-- TOTAL -->
+                            <td>
+
+                                <strong>
+
+                                    Rs.
+                                    {{ purchase.total_amount|floatformat:2 }}
+
+                                </strong>
+
+                            </td>
+
+
+                            <!-- DATE -->
+                            <td>
+
+                                {{ purchase.date|date:"d M Y" }}
+
+                            </td>
+
+                        </tr>
+
+
+                    {% empty %}
+
+                        <tr>
+
+                            <td
+                                colspan="7"
+                                class="text-center py-5"
+                            >
+
+                                <h4>
+                                    📭 No Purchases Found
+                                </h4>
+
+                                <p class="text-muted mb-0">
+                                    No purchase records have been created yet.
+                                </p>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     CUSTOM STYLE
+========================== -->
+
+<style>
+
+/* =========================
+   GENERAL
+========================== */
+
+.card {
+    border-radius: 12px;
+}
+
+.card-header {
+    border-radius: 12px 12px 0 0 !important;
+}
+
+.summary-card {
+    min-height: 125px;
+}
+
+.report-card {
+    overflow: hidden;
+}
+
+
+/* =========================
+   TABLE
+========================== */
+
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.table td {
+    vertical-align: middle;
+    padding: 14px 12px;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+
+/* =========================
+   SALES TABLE WIDTH
+========================== */
+
+.sales-table {
+    min-width: 1100px;
+}
+
+.sales-table .col-id {
+    width: 65px;
+}
+
+.sales-table .col-customer {
+    width: 150px;
+    min-width: 150px;
+}
+
+.sales-table .col-products {
+    width: 330px;
+    min-width: 330px;
+}
+
+.sales-table .col-qty {
+    width: 100px;
+    min-width: 100px;
+}
+
+.sales-table .col-total {
+    width: 150px;
+    min-width: 150px;
+}
+
+.sales-table .col-date {
+    width: 170px;
+    min-width: 170px;
+}
+
+.sales-table .col-status {
+    width: 140px;
+    min-width: 140px;
+}
+
+
+/* =========================
+   PRODUCT BOX
+========================== */
+
+.products-list {
+    width: 100%;
+    min-width: 300px;
+}
+
+.product-box {
+    width: 100%;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 9px;
+    padding: 10px 12px;
+    margin-bottom: 7px;
+}
+
+.product-box:last-child {
+    margin-bottom: 0;
+}
+
+.product-name {
+    color: #212529;
+    font-size: 15px;
+    line-height: 1.4;
+    margin-bottom: 7px;
+    white-space: normal;
+    word-break: break-word;
+}
+
+.product-details {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+
+/* =========================
+   WATT BADGE
+========================== */
+
+.watt-badge {
+    display: inline-block;
+    background: #0dcaf0;
+    color: #000;
+    padding: 5px 9px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+
+/* =========================
+   QUANTITY BADGE
+========================== */
+
+.quantity-badge {
+    display: inline-block;
+    background: #0d6efd;
+    color: #fff;
+    padding: 5px 9px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.total-qty-badge {
+    display: inline-block;
+    background: #0d6efd;
+    color: #fff;
+    padding: 7px 11px;
+    border-radius: 7px;
+    font-weight: 700;
+}
+
+
+/* =========================
+   CUSTOMER
+========================== */
+
+.customer-name {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+
+/* =========================
+   PRICE
+========================== */
+
+.total-price {
+    color: #198754;
+    white-space: nowrap;
+}
+
+
+/* =========================
+   DATE
+========================== */
+
+.date-text {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.time-text {
+    color: #6c757d;
+    white-space: nowrap;
+}
+
+
+/* =========================
+   STATUS
+========================== */
+
+.status-badge {
+    display: inline-block;
+    padding: 7px 10px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.status-pending {
+    background: #ffc107;
+    color: #000;
+}
+
+.status-paid {
+    background: #198754;
+    color: #fff;
+}
+
+.status-delivered {
+    background: #0dcaf0;
+    color: #000;
+}
+
+.status-cancelled {
+    background: #dc3545;
+    color: #fff;
+}
+
+.status-other {
+    background: #6c757d;
+    color: #fff;
+}
+
+
+/* =========================
+   PURCHASE
+========================== */
+
+.purchase-table {
+    min-width: 950px;
+}
+
+.purchase-product-box {
+    min-width: 220px;
+}
+
+.supplier-name {
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+
+/* =========================
+   MOBILE
+========================== */
+
+@media (max-width: 768px) {
+
+    .container-fluid {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .summary-card {
+        min-height: auto;
+    }
+
+    .card-body {
+        padding: 12px;
+    }
+
+    .products-list {
+        min-width: 280px;
+    }
+
+}
+
+</style>
+
+{% endblock %}
+

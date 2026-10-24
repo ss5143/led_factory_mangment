@@ -1,0 +1,1490 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+/* =========================
+   DASHBOARD
+========================= */
+
+.dashboard-title h2 {
+    font-weight: 700;
+    color: #146cc4;
+}
+
+.dashboard-title p {
+    color: #376ab1 !important;
+}
+
+/* =========================
+   DASHBOARD BOXES
+========================= */
+
+.dashboard-box {
+    position: relative;
+    min-height: 145px;
+    padding: 24px;
+    border-radius: 18px;
+    overflow: hidden;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.10);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    transition: all 0.3s ease;
+}
+
+.dashboard-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+}
+
+.dashboard-box h6 {
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0.9;
+}
+
+.dashboard-box h2 {
+    margin: 0;
+    font-size: 30px;
+    font-weight: 700;
+}
+
+.dashboard-box small {
+    display: block;
+    margin-top: 7px;
+    opacity: 0.7;
+}
+
+.dashboard-icon {
+    position: absolute;
+    right: 20px;
+    bottom: 15px;
+    font-size: 44px;
+    opacity: 0.20;
+}
+
+.products-box {
+    background: linear-gradient(135deg, #172554, #1d4ed8);
+}
+
+.sales-box {
+    background: linear-gradient(135deg, #14532d, #16a34a);
+}
+
+.purchase-box {
+    background: linear-gradient(135deg, #581c87, #9333ea);
+}
+
+/* Equal width cards */
+
+.dashboard-card,
+.today-card,
+.purchase-card,
+.stock-card {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* =========================
+   TODAY CARDS
+========================= */
+
+.today-card,
+.chart-card,
+.recent-card {
+    background: #111827 !important;
+    border: 1px solid #334155 !important;
+    border-radius: 18px !important;
+    color: #fff;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.20);
+    overflow: hidden;
+}
+
+.today-card {
+    transition: all 0.3s ease;
+}
+
+.today-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.30);
+}
+
+.today-card .card-body {
+    padding: 25px;
+}
+
+.today-card h5,
+.chart-card .card-header,
+.recent-card .card-header {
+    color: #f8fafc;
+    font-weight: 600;
+}
+
+.today-card h3 {
+    margin-top: 8px;
+    margin-bottom: 0;
+    font-size: 25px;
+    font-weight: 700;
+    color: #22c55e;
+}
+
+.today-card h2 {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 700;
+    color: #38bdf8;
+}
+
+.text-muted {
+    color: #94a3b8 !important;
+}
+
+/* =========================
+   LOW STOCK
+========================= */
+
+.low-stock-alert {
+    background: rgba(127, 29, 29, 0.30) !important;
+    border: 1px solid #ef4444 !important;
+    color: #fecaca !important;
+    border-radius: 15px;
+}
+
+.low-stock-alert h5 {
+    color: #f87171;
+    font-weight: 700;
+}
+
+/* =========================
+   TABLES
+========================= */
+
+.chart-card .card-header,
+.recent-card .card-header {
+    background: #0f172a !important;
+    border-bottom: 1px solid #334155 !important;
+    padding: 17px 20px;
+    font-size: 16px;
+}
+
+.chart-card .card-body,
+.recent-card .card-body {
+    background: #111827;
+}
+
+.table {
+    color: #e2e8f0 !important;
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background: #0f172a !important;
+    color: #94a3b8 !important;
+    border-bottom: 1px solid #334155 !important;
+    padding: 14px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.table tbody td {
+    background: #111827 !important;
+    color: #e2e8f0 !important;
+    border-bottom: 1px solid #1e293b !important;
+    padding: 13px;
+    vertical-align: middle;
+}
+
+.table tbody tr {
+    transition: 0.2s ease;
+}
+
+.table tbody tr:hover td {
+    background: #172033 !important;
+}
+
+/* =========================
+   STOCK STATUS
+========================= */
+
+.stock-zero,
+.stock-low,
+.stock-high {
+    display: inline-block;
+    min-width: 48px;
+    padding: 5px 10px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 700;
+}
+
+.stock-zero {
+    background: #7f1d1d;
+    color: #fecaca;
+}
+
+.stock-low {
+    background: #78350f;
+    color: #fed7aa;
+}
+
+.stock-high {
+    background: #14532d;
+    color: #bbf7d0;
+}
+
+/* =========================
+   PRODUCT IMAGE
+========================= */
+
+.product-img {
+    width: 52px;
+    height: 52px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid #334155;
+}
+
+/* =========================
+   ACTION BUTTONS
+========================= */
+
+.action-btn {
+    min-width: 35px;
+    border-radius: 8px !important;
+    margin: 2px;
+}
+
+/* =========================
+   SEARCH
+========================= */
+
+.dashboard-search .form-control {
+    background: #111827 !important;
+    border: 1px solid #334155 !important;
+    color: #fff !important;
+}
+
+.dashboard-search .form-control::placeholder {
+    color: #64748b;
+}
+
+.dashboard-search .form-control:focus {
+    border-color: #22c55e !important;
+    box-shadow: 0 0 0 0.15rem rgba(34,197,94,0.15);
+}
+
+/* =========================
+   CHART
+========================= */
+
+.chart-wrapper {
+    position: relative;
+    height: 320px;
+}
+
+.stock-chart-wrapper {
+    position: relative;
+    height: 320px;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.top-action-btn {
+    border-radius: 10px !important;
+    font-weight: 600;
+    margin-left: 5px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 992px) {
+
+    .dashboard-title {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 15px;
+    }
+
+    .dashboard-actions {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .dashboard-box {
+        min-height: 130px;
+        padding: 20px;
+    }
+
+    .dashboard-box h2 {
+        font-size: 25px;
+    }
+
+    .dashboard-icon {
+        font-size: 36px;
+    }
+
+    .today-card .card-body {
+        padding: 20px;
+    }
+
+    .dashboard-actions .btn {
+        margin: 3px 0;
+    }
+}
+</style>
+
+<div class="container-fluid">
+
+<!-- =========================
+     DASHBOARD TITLE
+========================== -->
+
+<div class="d-flex justify-content-between align-items-center mb-4 dashboard-title">
+
+    <div>
+        <h2>📊 LED Bulb Management Dashboard</h2>
+
+        <p class="text-muted mb-0">
+            Welcome to your LED Factory ERP
+        </p>
+    </div>
+
+    <div class="dashboard-actions">
+
+        <a href="{% url 'add_product' %}"
+           class="btn btn-success top-action-btn">
+            ➕ Add Product
+        </a>
+
+        <a href="{% url 'orders:add_order' %}"
+           class="btn btn-warning top-action-btn">
+            🛒 New Sale
+        </a>
+
+        <a href="{% url 'add_purchase' %}"
+           class="btn btn-info top-action-btn">
+            🚚 Add Purchase
+        </a>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     TODAY'S BUSINESS
+========================== -->
+
+<h5 class="mb-3">
+    📅 Today's Business
+</h5>
+
+<div class="row g-4 mb-4">
+
+    <!-- Sold Today -->
+
+    <div class="col-lg-4 col-md-6">
+
+        <div class="dashboard-box products-box">
+
+            <div>
+
+                <h6>💡 Bulbs Sold Today</h6>
+
+                <h2>
+                    {{ today_sold }}
+                </h2>
+
+                <small>
+                    Pieces Sold
+                </small>
+
+            </div>
+
+            <div class="dashboard-icon">
+                💡
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Sales Today -->
+
+    <div class="col-lg-4 col-md-6">
+
+        <div class="dashboard-box sales-box">
+
+            <div>
+
+                <h6>💰 Sales Today</h6>
+
+                <h2>
+                    Rs. {{ today_sales }}
+                </h2>
+
+                <small>
+                    Today's Revenue
+                </small>
+
+            </div>
+
+            <div class="dashboard-icon">
+                💰
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Orders Today -->
+
+    <div class="col-lg-4 col-md-6">
+
+        <div class="dashboard-box purchase-box">
+
+            <div>
+
+                <h6>🧾 Orders Today</h6>
+
+                <h2>
+                    {{ today_orders_count }}
+                </h2>
+
+                <small>
+                    Total Orders
+                </small>
+
+            </div>
+
+            <div class="dashboard-icon">
+                🧾
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     TODAY PURCHASE / STOCK
+========================== -->
+
+<div class="row g-4 mb-4">
+
+    <!-- Today's Purchases -->
+
+    <div class="col-md-6">
+
+        <div class="card today-card h-100">
+
+            <div class="card-body">
+
+                <h5>
+                    🚚 Today's Purchases
+                </h5>
+
+                <div class="row mt-3">
+
+                    <div class="col-6">
+
+                        <small class="text-muted">
+                            Bulbs Purchased
+                        </small>
+
+                        <h3>
+                            {{ today_purchased }}
+                        </h3>
+
+                    </div>
+
+                    <div class="col-6">
+
+                        <small class="text-muted">
+                            Purchase Amount
+                        </small>
+
+                        <h3>
+                            Rs. {{ today_purchase_amount }}
+                        </h3>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Current Stock -->
+
+    <div class="col-md-6">
+
+        <div class="card today-card h-100">
+
+            <div class="card-body">
+
+                <h5>
+                    📦 Current Stock
+                </h5>
+
+                <div class="d-flex justify-content-between align-items-center mt-3">
+
+                    <h2>
+                        {{ total_stock }}
+                    </h2>
+
+                    <span class="badge bg-success fs-6">
+                        Available
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     LOW STOCK
+========================== -->
+
+{% if low_stock %}
+
+<div class="alert low-stock-alert shadow-sm mb-4">
+
+    <h5>
+        ⚠️ Low Stock Alert
+    </h5>
+
+    <ul class="mb-0">
+
+        {% for product in low_stock %}
+
+        <li>
+
+            <strong>
+                {{ product.category }} - {{ product.watt }}W
+            </strong>
+
+            — {{ product.stock }} pieces left
+
+        </li>
+
+        {% endfor %}
+
+    </ul>
+
+</div>
+
+{% endif %}
+
+
+<!-- =========================
+     TODAY PRODUCT SALES
+========================== -->
+
+<div class="card chart-card mb-4">
+
+    <div class="card-header">
+        📅 Today's Product Sales
+    </div>
+
+    <div class="card-body">
+
+        <div class="table-responsive">
+
+            <table class="table">
+
+                <thead>
+
+                    <tr>
+                        <th>Product</th>
+                        <th>Watt</th>
+                        <th>Sold Today</th>
+                        <th>Sales Today</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for item in today_product_sales %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ item.product.category }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            <span class="badge bg-warning text-dark">
+                                {{ item.product.watt }}W
+                            </span>
+                        </td>
+
+                        <td>
+
+                            {% if item.sold > 0 %}
+
+                            <span class="badge bg-success">
+                                {{ item.sold }}
+                            </span>
+
+                            {% else %}
+
+                            <span class="badge bg-secondary">
+                                0
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+                            <strong>
+                                Rs. {{ item.sales }}
+                            </strong>
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td colspan="4" class="text-center">
+                            No Sales Today
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     PRODUCT WISE BUSINESS
+========================== -->
+
+<div class="card chart-card mb-4">
+
+    <div class="card-header">
+        💡 Product Wise Business
+    </div>
+
+    <div class="card-body">
+
+        <div class="table-responsive">
+
+            <table class="table">
+
+                <thead>
+
+                    <tr>
+                        <th>Product</th>
+                        <th>Watt</th>
+                        <th>Sold</th>
+                        <th>Purchased</th>
+                        <th>Sales Amount</th>
+                        <th>Current Stock</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for item in product_sales %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ item.product.category }}
+                            </strong>
+                        </td>
+
+                        <td>
+
+                            <span class="badge bg-warning text-dark">
+                                {{ item.product.watt }}W
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <span class="badge bg-success">
+                                {{ item.sold }}
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <span class="badge bg-primary">
+                                {{ item.purchased }}
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <strong>
+                                Rs. {{ item.sales }}
+                            </strong>
+
+                        </td>
+
+                        <td>
+
+                            {% if item.stock <= 0 %}
+
+                            <span class="stock-zero">
+                                Out
+                            </span>
+
+                            {% elif item.stock < 10 %}
+
+                            <span class="stock-low">
+                                {{ item.stock }}
+                            </span>
+
+                            {% else %}
+
+                            <span class="stock-high">
+                                {{ item.stock }}
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td colspan="6" class="text-center">
+                            No Sales Data Found
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     PRODUCT LIST
+========================== -->
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+
+    <h3>
+        📦 Product List
+    </h3>
+
+    <a href="{% url 'export_products_excel' %}"
+       class="btn btn-success">
+        📊 Export Excel
+    </a>
+
+</div>
+
+
+<!-- Search -->
+
+<form method="GET" class="mb-3 dashboard-search">
+
+    <div class="input-group">
+
+        <input
+            type="text"
+            name="search"
+            class="form-control"
+            placeholder="Search Product..."
+            value="{{ request.GET.search }}"
+        >
+
+        <button class="btn btn-success">
+            🔍 Search
+        </button>
+
+    </div>
+
+</form>
+
+
+<!-- Product Table -->
+
+<div class="card chart-card mb-4">
+
+    <div class="card-body p-0">
+
+        <div class="table-responsive">
+
+            <table class="table mb-0">
+
+                <thead>
+
+                    <tr>
+                        <th>Image</th>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Watt</th>
+                        <th>Purchase Price</th>
+                        <th>Sale Price</th>
+                        <th>Stock</th>
+                        <th>Action</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for product in products %}
+
+                    <tr>
+
+                        <!-- Image -->
+
+                        <td>
+
+                            {% if product.image %}
+
+                            <img
+                                src="{{ product.image.url }}"
+                                class="product-img"
+                                alt="{{ product.category }} {{ product.watt }}W"
+                            >
+
+                            {% else %}
+
+                            <span class="text-muted">
+                                No Image
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- Product -->
+
+                        <td>
+
+                            <strong>
+                                {{ product.category }} - {{ product.watt }}W
+                            </strong>
+
+                        </td>
+
+
+                        <!-- Category -->
+
+                        <td>
+                            {{ product.category }}
+                        </td>
+
+
+                        <!-- Watt -->
+
+                        <td>
+
+                            <span class="badge bg-warning text-dark">
+                                {{ product.watt }}W
+                            </span>
+
+                        </td>
+
+
+                        <!-- Purchase Price -->
+
+                        <td>
+                            Rs. {{ product.purchase_price }}
+                        </td>
+
+
+                        <!-- Sale Price -->
+
+                        <td>
+
+                            <strong>
+                                Rs. {{ product.sale_price }}
+                            </strong>
+
+                        </td>
+
+
+                        <!-- Stock -->
+
+                        <td>
+
+                            {% if product.stock <= 0 %}
+
+                            <span class="stock-zero">
+                                Out
+                            </span>
+
+                            {% elif product.stock < 20 %}
+
+                            <span class="stock-low">
+                                {{ product.stock }}
+                            </span>
+
+                            {% else %}
+
+                            <span class="stock-high">
+                                {{ product.stock }}
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- Actions -->
+
+                        <td>
+
+                            <a
+                                href="{% url 'product_detail' product.id %}"
+                                class="btn btn-info btn-sm action-btn"
+                            >
+                                👁
+                            </a>
+
+                            <a
+                                href="{% url 'edit_product' product.id %}"
+                                class="btn btn-warning btn-sm action-btn"
+                            >
+                                ✏
+                            </a>
+
+                            <a
+                                href="{% url 'delete_product' product.id %}"
+                                class="btn btn-danger btn-sm action-btn"
+                                onclick="return confirm('Delete this product?')"
+                            >
+                                🗑
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td colspan="8" class="text-center">
+                            No Products Found
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     RECENT ORDERS + PURCHASES
+========================== -->
+
+<div class="row g-4 mb-4">
+
+
+    <!-- Recent Orders -->
+
+    <div class="col-lg-6">
+
+        <div class="card recent-card h-100">
+
+            <div class="card-header">
+                🛒 Recent Orders
+            </div>
+
+            <div class="card-body">
+
+                <div class="table-responsive">
+
+                    <table class="table">
+
+                        <thead>
+
+                            <tr>
+                                <th>Customer</th>
+                                <th>Product</th>
+                                <th>Qty</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            {% for order in recent_orders %}
+
+                                {% for item in order.items.all %}
+
+                                <tr>
+
+                                    {% if forloop.first %}
+
+                                    <td rowspan="{{ order.items.all|length }}">
+                                        {{ order.customer_name }}
+                                    </td>
+
+                                    {% endif %}
+
+                                    <td>
+                                        {{ item.product.category }}
+                                        - {{ item.product.watt }}W
+                                    </td>
+
+                                    <td>
+
+                                        <span class="badge bg-success">
+                                            {{ item.quantity }}
+                                        </span>
+
+                                    </td>
+
+                                </tr>
+
+                                {% endfor %}
+
+                            {% empty %}
+
+                            <tr>
+
+                                <td colspan="3" class="text-center">
+                                    No Orders
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Recent Purchases -->
+
+    <div class="col-lg-6">
+
+        <div class="card recent-card h-100">
+
+            <div class="card-header">
+                🚚 Recent Purchases
+            </div>
+
+            <div class="card-body">
+
+                <div class="table-responsive">
+
+                    <table class="table">
+
+                        <thead>
+
+                            <tr>
+                                <th>Supplier</th>
+                                <th>Product</th>
+                                <th>Qty</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            {% for purchase in recent_purchases %}
+
+                            <tr>
+
+                                <td>
+                                    {{ purchase.supplier }}
+                                </td>
+
+                                <td>
+                                    {{ purchase.product.category }}
+                                    - {{ purchase.product.watt }}W
+                                </td>
+
+                                <td>
+
+                                    <span class="badge bg-primary">
+                                        {{ purchase.quantity }}
+                                    </span>
+
+                                </td>
+
+                            </tr>
+
+                            {% empty %}
+
+                            <tr>
+
+                                <td colspan="3" class="text-center">
+                                    No Purchases
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     CHARTS
+========================== -->
+
+<div class="row g-4 mb-5">
+
+
+    <!-- Monthly Sales -->
+
+    <div class="col-lg-8">
+
+        <div class="card chart-card">
+
+            <div class="card-header">
+                📈 Monthly Sales Report
+            </div>
+
+            <div class="card-body">
+
+                <div class="chart-wrapper">
+
+                    <canvas id="monthlySalesChart"></canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Stock Chart -->
+
+    <div class="col-lg-4">
+
+        <div class="card chart-card">
+
+            <div class="card-header">
+                📦 Stock Status
+            </div>
+
+            <div class="card-body">
+
+                <div class="stock-chart-wrapper">
+
+                    <canvas id="stockChart"></canvas>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+```
+
+</div>
+
+<!-- =========================
+     CHART DATA
+========================== -->
+
+{{ chart_labels|json_script:"chart-labels" }}
+{{ chart_data|json_script:"chart-data" }}
+{{ total_stock|json_script:"total-stock" }}
+{{ total_sold|json_script:"total-sold" }}
+
+<!-- =========================
+     CHART.JS
+========================== -->
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    /* =========================
+       GET CHART DATA
+    ========================== */
+
+    let chartLabels = [];
+    let chartData = [];
+    let totalStock = 0;
+    let totalSold = 0;
+
+
+    try {
+
+        chartLabels = JSON.parse(
+            document.getElementById("chart-labels").textContent
+        );
+
+    } catch (error) {
+
+        console.error("Chart labels error:", error);
+
+    }
+
+
+    try {
+
+        chartData = JSON.parse(
+            document.getElementById("chart-data").textContent
+        );
+
+    } catch (error) {
+
+        console.error("Chart data error:", error);
+
+    }
+
+
+    try {
+
+        totalStock = JSON.parse(
+            document.getElementById("total-stock").textContent
+        );
+
+    } catch (error) {
+
+        console.error("Total stock error:", error);
+
+    }
+
+
+    try {
+
+        totalSold = JSON.parse(
+            document.getElementById("total-sold").textContent
+        );
+
+    } catch (error) {
+
+        console.error("Total sold error:", error);
+
+    }
+
+
+    /* =========================
+       CHECK CHART.JS
+    ========================== */
+
+    if (typeof Chart === "undefined") {
+
+        console.error(
+            "Chart.js is not loaded. Add Chart.js in base.html."
+        );
+
+        return;
+
+    }
+
+
+    /* =========================
+       MONTHLY SALES CHART
+    ========================== */
+
+    const monthlySalesCanvas =
+        document.getElementById("monthlySalesChart");
+
+
+    if (monthlySalesCanvas) {
+
+        new Chart(monthlySalesCanvas, {
+
+            type: "line",
+
+            data: {
+
+                labels: chartLabels,
+
+                datasets: [
+
+                    {
+
+                        label: "Monthly Sales (Rs.)",
+
+                        data: chartData,
+
+                        borderWidth: 3,
+
+                        tension: 0.4,
+
+                        fill: false
+
+                    }
+
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                scales: {
+
+                    y: {
+
+                        beginAtZero: true
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+
+    /* =========================
+       STOCK CHART
+    ========================== */
+
+    const stockCanvas =
+        document.getElementById("stockChart");
+
+
+    if (stockCanvas) {
+
+        new Chart(stockCanvas, {
+
+            type: "doughnut",
+
+            data: {
+
+                labels: [
+                    "Available Stock",
+                    "Sold"
+                ],
+
+                datasets: [
+
+                    {
+
+                        data: [
+
+                            Number(totalStock) || 0,
+                            Number(totalSold) || 0
+
+                        ]
+
+                    }
+
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                plugins: {
+
+                    legend: {
+
+                        position: "bottom"
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+});
+
+</script>
+
+{% endblock %}

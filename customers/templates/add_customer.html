@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Customer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container mt-5">
+
+    <h2>Add Customer</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button type="submit" class="btn btn-success">
+            Save Customer
+        </button>
+    </form>
+
+    <a href="{% url 'customer_list' %}" class="btn btn-primary mt-3">
+        Customer List
+    </a>
+
+</div>
+
+</body>
+</html>
