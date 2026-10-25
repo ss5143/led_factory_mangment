@@ -38,7 +38,7 @@ def add_order(request):
         LED Bulb 12W  -> Qty 5  -> Sale Price 100
     """
 
-    products = Product.objects.all().order_by("category", "watt")
+    products = Product.objects.filter(user=request.user).order_by("category", "watt")
 
     if request.method == "POST":
 
@@ -60,6 +60,7 @@ def add_order(request):
         # =====================================================
 
         order = Order.objects.create(
+            user=request.user,
             customer_name=customer_name,
             total_price=Decimal("0.00"),
             status="Pending",
@@ -312,7 +313,7 @@ def add_order(request):
 def orders(request):
 
     order_list = (
-        Order.objects
+        Order.objects.filter(user=request.user)
         .prefetch_related("items__product")
         .order_by("-id")
     )
@@ -337,7 +338,8 @@ def order_detail(request, id):
         Order.objects.prefetch_related(
             "items__product"
         ),
-        id=id
+        id=id,
+        user=request.user
     )
 
     return render(
@@ -361,7 +363,8 @@ def edit_order(request, id):
 
     order = get_object_or_404(
         Order,
-        id=id
+        id=id,
+        user=request.user
     )
 
     # =====================================================
@@ -381,7 +384,11 @@ def edit_order(request, id):
             order=order
         )
 
-        product = item.product
+        product = get_object_or_404(
+            Product,
+            id=item.product_id,
+            user=request.user
+        )
 
         # Return stock
         product.stock += item.quantity
@@ -455,7 +462,8 @@ def edit_order(request, id):
 
         product = get_object_or_404(
             Product,
-            id=product_id
+            id=product_id,
+            user=request.user
         )
 
         if quantity > product.stock:
@@ -554,8 +562,9 @@ def edit_order(request, id):
                 profit=item_profit,
             )
 
-        # Reduce stock.
+        # Reduce stock and save.
         product.stock -= quantity
+        product.save(update_fields=["stock"])
         product.save(
             update_fields=["stock"]
         )
@@ -729,7 +738,7 @@ def edit_order(request, id):
 
     available_products = (
         Product.objects
-        .all()
+        .filter(user=request.user)
         .order_by(
             "category",
             "watt"
@@ -828,7 +837,8 @@ def mark_paid(request, id):
 
     order = get_object_or_404(
         Order,
-        id=id
+        id=id,
+        user=request.user
     )
 
     order.status = "Paid"
@@ -858,7 +868,8 @@ def invoice(request, id):
         Order.objects.prefetch_related(
             "items__product"
         ),
-        id=id
+        id=id,
+        user=request.user
     )
 
     return render(
@@ -881,7 +892,8 @@ def invoice_pdf(request, order_id):
         Order.objects.prefetch_related(
             "items__product"
         ),
-        id=order_id
+        id=order_id,
+        user=request.user,
     )
 
     response = HttpResponse(
@@ -1256,7 +1268,8 @@ def delete_order(request, id):
 
     order = get_object_or_404(
         Order.objects.select_for_update(),
-        id=id
+        id=id,
+        user=request.user
     )
 
     # Only POST can delete

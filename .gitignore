@@ -17,3 +17,19 @@ installer.zip
 .git/
 
 *.backup
+
+# Local backups and temporary files
+*.bak
+*.backup
+*.sqlite3.*
+backup_before_*/
+settings.py.*
+urls.py.*
+base.html.before-*
+login.html.*
+folder_structure.txt
+
+
+db_before_*.sqlite3
+enable_google_oauth.py
+

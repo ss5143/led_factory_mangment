@@ -1,4 +1,5 @@
 from decimal import Decimal
+from django.db import models
 
 from django.shortcuts import (
     render,
@@ -39,16 +40,22 @@ def home(request):
 
     search = request.GET.get("search", "").strip()
 
+
     if search:
-        product_list = (
-            Product.objects
-            .filter(name__icontains=search)
-            .order_by("id")
-        )
+      product_list = (
+         Product.objects
+          .filter(user=request.user)
+           .filter(
+              models.Q(category__icontains=search)
+             | models.Q(watt__icontains=search)
+         )
+        .order_by("id")
+    )
+
     else:
         product_list = (
             Product.objects
-            .all()
+            .filter(user=request.user)
             .order_by("id")
         )
 
@@ -61,14 +68,14 @@ def home(request):
     # TOTAL PRODUCTS
     # =====================================================
 
-    total_products = Product.objects.count()
+    total_products = Product.objects.filter(user=request.user).count()
 
     # =====================================================
     # TOTAL STOCK
     # =====================================================
 
     total_stock = (
-        Product.objects.aggregate(
+        Product.objects.filter(user=request.user).aggregate(
             total=Sum("stock")
         )["total"]
         or 0
@@ -79,7 +86,7 @@ def home(request):
     # =====================================================
 
     total_sold = (
-        OrderItem.objects.aggregate(
+        OrderItem.objects.filter(order__user=request.user).aggregate(
             total=Sum("quantity")
         )["total"]
         or 0
@@ -90,7 +97,7 @@ def home(request):
     # =====================================================
 
     sales_amount = (
-        Order.objects.aggregate(
+        Order.objects.filter(user=request.user).aggregate(
             total=Sum("total_price")
         )["total"]
         or Decimal("0.00")
@@ -101,7 +108,7 @@ def home(request):
     # =====================================================
 
     total_purchased = (
-        Purchase.objects.aggregate(
+        Purchase.objects.filter(user=request.user).aggregate(
             total=Sum("quantity")
         )["total"]
         or 0
@@ -114,7 +121,7 @@ def home(request):
     # =====================================================
 
     purchase_amount = (
-        Purchase.objects.aggregate(
+        Purchase.objects.filter(user=request.user).aggregate(
             total=Sum(
                 ExpressionWrapper(
                     F("purchase_price") * F("quantity"),
@@ -134,7 +141,7 @@ def home(request):
     # Profit already calculated in Order model
     # =====================================================
 
-    profit = OrderItem.objects.aggregate(
+    profit = OrderItem.objects.filter(order__user=request.user).aggregate(
         total=Sum("profit")
     )["total"] or 0
 
@@ -144,7 +151,7 @@ def home(request):
 
     low_stock = (
         Product.objects
-        .filter(stock__lt=10)
+        .filter(user=request.user, stock__lt=10)
         .order_by("stock", "id")
     )
 
@@ -153,37 +160,33 @@ def home(request):
     # =====================================================
 
     recent_purchases = (
-        Purchase.objects
-        .select_related("product")
-        .order_by("-id")[:5]
+    Purchase.objects
+    .filter(user=request.user)
+    .select_related("product")
+    .order_by("-id")[:5]
     )
-
     # =====================================================
     # RECENT ORDERS
     # =====================================================
 
     recent_orders = (
-        Order.objects
-        .prefetch_related("items__product")
-        .order_by("-id")[:5]
+    Order.objects
+    .filter(user=request.user)
+    .prefetch_related("items__product")
+    .order_by("-id")[:5]
     )
-
     # =====================================================
     # MONTHLY SALES
     # =====================================================
 
     monthly_sales = (
-        Order.objects
-        .annotate(
-            month=TruncMonth("created_at")
-        )
-        .values("month")
-        .annotate(
-            total=Sum("total_price")
-        )
-        .order_by("month")
+    Order.objects
+    .filter(user=request.user)
+    .annotate(month=TruncMonth("created_at"))
+    .values("month")
+    .annotate(total=Sum("total_price"))
+    .order_by("month")
     )
-
     chart_labels = [
         sale["month"].strftime("%b %Y")
         for sale in monthly_sales
@@ -204,21 +207,20 @@ def home(request):
 
     today = timezone.localdate()
 
-    today_orders = (
-        Order.objects
-        .filter(created_at__date=today)
+    today_orders = Order.objects.filter(
+     user=request.user,
+     created_at__date=today,
     )
 
     today_order_items = (
         OrderItem.objects
-        .filter(order__created_at__date=today)
+        .filter(order__user=request.user,order__created_at__date=today)
     )
 
-    today_purchases = (
-        Purchase.objects
-        .filter(date=today)
+    today_purchases = Purchase.objects.filter(
+     user=request.user,
+     date=today,
     )
-
     # =====================================================
     # TODAY SOLD
     # =====================================================
@@ -297,8 +299,9 @@ def home(request):
     product_sales = []
 
     all_products = (
-        Product.objects
-        .all()
+        Product.objects.filter(
+            user=request.user
+        )
         .order_by("id")
     )
 
@@ -310,7 +313,7 @@ def home(request):
 
         sold = (
             OrderItem.objects
-            .filter(product=product)
+            .filter(product=product,order__user=request.user,)
             .aggregate(
                 total=Sum("quantity")
             )["total"]
@@ -323,7 +326,7 @@ def home(request):
 
         purchased = (
             Purchase.objects
-            .filter(product=product)
+            .filter(product=product,user=request.user,)
             .aggregate(
                 total=Sum("quantity")
             )["total"]
@@ -336,7 +339,7 @@ def home(request):
 
         sales = (
             OrderItem.objects
-            .filter(product=product)
+            .filter(product=product, order__user=request.user,)
             .aggregate(
                 total=Sum("total_price")
             )["total"]
@@ -377,6 +380,7 @@ def home(request):
             OrderItem.objects
             .filter(
                 product=product,
+                order__user=request.user,
                 order__created_at__date=today,
             )
         )
@@ -500,7 +504,9 @@ def add_product(request):
 
         if form.is_valid():
 
-            form.save()
+            product = form.save(commit=False)
+            product.user = request.user
+            product.save()
 
             return redirect("home")
 
@@ -527,6 +533,7 @@ def edit_product(request, id):
     product = get_object_or_404(
         Product,
         id=id,
+        user=request.user,
     )
 
     if request.method == "POST":
@@ -569,6 +576,7 @@ def delete_product(request, id):
     product = get_object_or_404(
         Product,
         id=id,
+        user=request.user,
     )
 
     product.delete()
@@ -586,6 +594,7 @@ def product_detail(request, id):
     product = get_object_or_404(
         Product,
         id=id,
+        user=request.user,
     )
 
     return render(
@@ -622,7 +631,7 @@ def export_products_excel(request):
 
     products = (
         Product.objects
-        .all()
+        .filter(user=request.user)
         .order_by("id")
     )
 

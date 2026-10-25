@@ -1,6 +1,9 @@
+from django.conf import settings
 from django.db import models
 
 class Product(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='product_records')
+
     CATEGORY_CHOICES = [
         ("LED Bulb", "LED Bulb"),
         ("ice Light", "ice Light"),

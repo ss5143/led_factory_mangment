@@ -1,0 +1,35 @@
+﻿{% extends "auth_base.html" %}
+{% load socialaccount %}
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-7 col-lg-5">
+      <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-dark text-white text-center py-4 rounded-top-4">
+          <h2 class="mb-1">LED Factory</h2>
+          <p class="mb-0">Create your account</p>
+        </div>
+        <div class="card-body p-4">
+          {% if form.errors %}
+            <div class="alert alert-danger">Please correct the fields below.</div>
+          {% endif %}
+          <form method="post" action="{% url 'account_signup' %}">
+            {% csrf_token %}
+            {% for field in form %}
+              <div class="mb-3">
+                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+              </div>
+            {% endfor %}
+            <button class="btn btn-success w-100 py-2" type="submit">Sign Up</button>
+          </form>
+          <p class="text-center mt-4 mb-0">Already registered? <a href="{% url 'account_login' %}">Sign In</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
