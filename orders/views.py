@@ -1,6 +1,6 @@
 from decimal import Decimal, InvalidOperation
 
-
+from company.models import Company
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
@@ -38,7 +38,13 @@ def add_order(request):
         LED Bulb 12W  -> Qty 5  -> Sale Price 100
     """
 
-    products = Product.objects.filter(user=request.user).order_by("category", "watt")
+    products = Product.objects.select_for_update().filter(
+        user=request.user
+    ).order_by("category", "watt")
+
+    customers = Customer.objects.filter(
+        user=request.user
+    ).order_by("name")
 
     if request.method == "POST":
 
@@ -46,13 +52,36 @@ def add_order(request):
         # CUSTOMER
         # =====================================================
 
-        customer_name = request.POST.get(
-            "customer_name",
-            "Walk-in Customer"
-        ).strip()
+        customer_id = request.POST.get("customer_id", "").strip()
+        customer = None
 
-        if not customer_name:
-            customer_name = "Walk-in Customer"
+        if customer_id:
+            customer = customers.filter(id=customer_id).first()
+
+            if customer is None:
+                messages.error(
+                    request,
+                    "Invalid customer selected. Please select your own customer."
+                )
+                return render(
+                    request,
+                    "add_order.html",
+                    {
+                        "form": OrderForm(),
+                        "products": products,
+                        "customers": customers,
+                    },
+                )
+
+        walkin_customer_name = request.POST.get(
+    "walkin_customer_name", ""
+).strip()
+
+        customer_name = (
+           customer.name
+             if customer
+             else (walkin_customer_name or "Walk-in Customer")
+            )
 
 
         # =====================================================
@@ -61,6 +90,7 @@ def add_order(request):
 
         order = Order.objects.create(
             user=request.user,
+            customer=customer,
             customer_name=customer_name,
             total_price=Decimal("0.00"),
             status="Pending",
@@ -129,6 +159,7 @@ def add_order(request):
                             }
                         ),
                         "products": products,
+                        "customers": customers,
                     }
                 )
 
@@ -166,6 +197,7 @@ def add_order(request):
                             }
                         ),
                         "products": products,
+                        "customers": customers,
                     }
                 )
 
@@ -229,6 +261,7 @@ def add_order(request):
             # -------------------------------------------------
 
             grand_total += item_total
+            grand_profit = Decimal("0.00")
             grand_profit += item_profit
 
             selected_products += 1
@@ -257,6 +290,7 @@ def add_order(request):
                         }
                     ),
                     "products": products,
+                        "customers": customers,
                 }
             )
 
@@ -300,6 +334,7 @@ def add_order(request):
         {
             "form": form,
             "products": products,
+                        "customers": customers,
         }
     )
 
@@ -362,7 +397,7 @@ def order_detail(request, id):
 def edit_order(request, id):
 
     order = get_object_or_404(
-        Order,
+        Order.objects.select_for_update(),
         id=id,
         user=request.user
     )
@@ -385,7 +420,7 @@ def edit_order(request, id):
         )
 
         product = get_object_or_404(
-            Product,
+            Product.objects.select_for_update(),
             id=item.product_id,
             user=request.user
         )
@@ -461,7 +496,7 @@ def edit_order(request, id):
             )
 
         product = get_object_or_404(
-            Product,
+            Product.objects.select_for_update(),
             id=product_id,
             user=request.user
         )
@@ -605,7 +640,11 @@ def edit_order(request, id):
         # Validate everything first.
         for item in items:
 
-            product = item.product
+            product = get_object_or_404(
+                Product.objects.select_for_update(),
+                id=item.product_id,
+                user=request.user,
+            )
 
             quantity_text = request.POST.get(
                 f"quantity_{item.id}",
@@ -663,6 +702,7 @@ def edit_order(request, id):
 
             changes.append({
                 "item": item,
+                "product": product,
                 "new_quantity": new_quantity,
                 "new_sale_price": new_sale_price,
                 "difference": difference,
@@ -683,7 +723,7 @@ def edit_order(request, id):
                 new_sale_price = change["new_sale_price"]
                 difference = change["difference"]
 
-                product = item.product
+                product = change["product"]
 
                 if difference > 0:
                     product.stock -= difference
@@ -871,12 +911,13 @@ def invoice(request, id):
         id=id,
         user=request.user
     )
-
+    company = Company.objects.filter(user=request.user).first()
     return render(
         request,
         "invoice.html",
         {
             "order": order,
+            "company": company,
         }
     )
 
@@ -1291,7 +1332,8 @@ def delete_order(request, id):
                 Product.objects
                 .select_for_update()
                 .get(
-                    id=item.product.id
+                    id=item.product.id,
+                    user=request.user,
                 )
             )
 

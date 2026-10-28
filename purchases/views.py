@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+﻿from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from .forms import PurchaseForm
@@ -7,15 +7,19 @@ from .forms import PurchaseForm
 @login_required(login_url="login")
 def add_purchase(request):
     if request.method == "POST":
-        form = PurchaseForm(request.POST)
+        form = PurchaseForm(request.POST, user=request.user)
 
         if form.is_valid():
             with transaction.atomic():
                 purchase = form.save(commit=False)
                 product = purchase.product
 
+                # Extra ownership check
                 if product.user_id != request.user.id:
-                    form.add_error("product", "Please select your own product.")
+                    form.add_error(
+                        "product",
+                        "Please select your own product."
+                    )
                 else:
                     purchase.user = request.user
                     product.stock += purchase.quantity
@@ -23,6 +27,6 @@ def add_purchase(request):
                     purchase.save()
                     return redirect("home")
     else:
-        form = PurchaseForm()
+        form = PurchaseForm(user=request.user)
 
     return render(request, "add_purchase.html", {"form": form})

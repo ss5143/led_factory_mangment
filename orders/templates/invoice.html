@@ -1,387 +1,462 @@
-```html
 {% extends "base.html" %}
 
 {% block content %}
 
 <style>
-
-    /* =========================
-       INVOICE PAGE
-    ========================= */
+    :root {
+        --inv-bg: #07111f;
+        --inv-card: #0d1b2a;
+        --inv-panel: #102235;
+        --inv-border: rgba(148, 163, 184, .20);
+        --inv-green: #22c55e;
+        --inv-green-light: #86efac;
+        --inv-muted: #9fb0c4;
+        --inv-white: #f8fafc;
+    }
 
     .invoice-page {
-        max-width: 950px;
-        margin: 30px auto;
-        color: #e5e7eb;
+        width: min(100% - 28px, 1050px);
+        margin: 28px auto 48px;
+        color: #e5edf7;
+        font-family: Inter, "Segoe UI", Arial, sans-serif;
+    }
+
+    .invoice-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 18px;
+        padding: 12px;
+        border: 1px solid var(--inv-border);
+        border-radius: 16px;
+        background: rgba(13, 27, 42, .86);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, .18);
+    }
+
+    .invoice-actions .btn,
+    .company-edit-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 42px;
+        padding: 10px 16px;
+        border-radius: 11px;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: .1px;
+        text-decoration: none;
+        transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+    }
+
+    .invoice-actions .btn:hover,
+    .company-edit-btn:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.08);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, .2);
     }
 
     .invoice-card {
-        background: #0f172a;
-        border: 1px solid #334155;
-        border-radius: 22px;
         overflow: hidden;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+        border: 1px solid var(--inv-border);
+        border-radius: 24px;
+        background: var(--inv-card);
+        box-shadow: 0 24px 65px rgba(0, 0, 0, .32);
     }
 
-
-    /* =========================
-       HEADER
-    ========================= */
-
     .invoice-header {
-        background: linear-gradient(
-            135deg,
-            #020617,
-            #111827,
-            #14532d
-        );
-        padding: 35px;
+        position: relative;
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        border-bottom: 2px solid #22c55e;
+        justify-content: space-between;
+        gap: 28px;
+        padding: 34px;
+        border-bottom: 1px solid rgba(34, 197, 94, .45);
+        background:
+            radial-gradient(ellipse at 8% 0%, rgba(34, 197, 94, .17), transparent 48%),
+            linear-gradient(135deg, #07111f 0%, #102235 62%, #123b2a 100%);
     }
 
     .company-area {
         display: flex;
         align-items: center;
         gap: 18px;
+        min-width: 0;
     }
 
     .invoice-logo {
-        width: 85px;
-        height: 85px;
+        flex: 0 0 auto;
+        width: 88px;
+        height: 88px;
+        padding: 7px;
         object-fit: contain;
-        border-radius: 18px;
-        border: 2px solid #22c55e;
-        padding: 5px;
-        background: #020617;
-        box-shadow: 0 0 25px rgba(34, 197, 94, 0.35);
+        border: 1px solid rgba(134, 239, 172, .6);
+        border-radius: 20px;
+        background: #07111f;
+        box-shadow: 0 8px 28px rgba(34, 197, 94, .16);
     }
 
     .company-name {
-        font-size: 30px;
-        font-weight: 800;
-        color: #22c55e;
         margin: 0;
-        text-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+        color: var(--inv-green-light);
+        font-size: clamp(21px, 3vw, 30px);
+        font-weight: 850;
+        letter-spacing: .3px;
+        overflow-wrap: anywhere;
     }
 
     .company-tagline {
-        color: #bbf7d0;
         margin: 5px 0 0;
-        font-size: 14px;
+        color: #d1fae5;
+        font-size: 13px;
+        letter-spacing: .25px;
     }
 
     .company-info {
-        color: #94a3b8;
+        margin-top: 7px;
+        color: #b6c5d7;
         font-size: 12px;
-        margin-top: 5px;
+        line-height: 1.6;
+        overflow-wrap: anywhere;
+    }
+
+    .company-edit-btn {
+        min-height: 34px;
+        margin-top: 12px;
+        padding: 7px 12px;
+        border: 1px solid rgba(134, 239, 172, .35);
+        background: rgba(34, 197, 94, .12);
+        color: #bbf7d0;
+        font-size: 12px;
     }
 
     .invoice-title {
+        flex: 0 0 auto;
         text-align: right;
     }
 
     .invoice-title h1 {
-        color: white;
-        font-size: 42px;
-        font-weight: 800;
         margin: 0;
+        color: #fff;
+        font-size: clamp(30px, 4vw, 43px);
+        font-weight: 900;
         letter-spacing: 2px;
+        line-height: 1.1;
     }
 
     .invoice-number {
-        color: #22c55e;
-        font-weight: 600;
-        margin-top: 5px;
+        margin-top: 9px;
+        color: var(--inv-green-light);
+        font-size: 13px;
+        font-weight: 750;
     }
 
     .invoice-date {
-        color: #94a3b8;
-        font-size: 13px;
+        margin-top: 5px;
+        color: var(--inv-muted);
+        font-size: 12px;
     }
 
-
-    /* =========================
-       BODY
-    ========================= */
-
     .invoice-body {
-        padding: 35px;
+        padding: 32px;
     }
 
     .billing-section {
         display: flex;
+        align-items: flex-start;
         justify-content: space-between;
-        margin-bottom: 35px;
+        gap: 24px;
+        margin-bottom: 28px;
+        padding: 22px;
+        border: 1px solid var(--inv-border);
+        border-radius: 17px;
+        background: linear-gradient(135deg, rgba(16, 34, 53, .95), rgba(13, 27, 42, .8));
     }
 
     .section-label {
-        color: #22c55e;
-        font-size: 12px;
-        font-weight: 700;
+        color: var(--inv-green-light);
+        font-size: 11px;
+        font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 1.5px;
     }
 
     .customer-name {
-        color: white;
-        font-size: 20px;
-        font-weight: 700;
-        margin-top: 7px;
+        margin-top: 8px;
+        color: var(--inv-white);
+        font-size: 19px;
+        font-weight: 750;
+        overflow-wrap: anywhere;
     }
 
     .customer-id {
-        color: #94a3b8;
-        font-size: 13px;
-        margin-top: 4px;
+        margin-top: 5px;
+        color: var(--inv-muted);
+        font-size: 12px;
+    }
+
+    .paid-badge,
+    .pending-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 9px 15px;
+        border: 1px solid;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 850;
+        letter-spacing: .6px;
+        white-space: nowrap;
     }
 
     .paid-badge {
-        background: rgba(34, 197, 94, 0.15);
-        color: #4ade80;
-        border: 1px solid #22c55e;
-        padding: 10px 25px;
-        border-radius: 30px;
-        font-weight: 700;
-        display: inline-block;
+        border-color: rgba(34, 197, 94, .5);
+        background: rgba(34, 197, 94, .12);
+        color: #86efac;
     }
 
     .pending-badge {
-        background: rgba(245, 158, 11, 0.15);
-        color: #fbbf24;
-        border: 1px solid #f59e0b;
-        padding: 10px 25px;
-        border-radius: 30px;
-        font-weight: 700;
-        display: inline-block;
+        border-color: rgba(245, 158, 11, .45);
+        background: rgba(245, 158, 11, .12);
+        color: #fcd34d;
     }
 
-
-    /* =========================
-       TABLE
-    ========================= */
+    .table-responsive {
+        overflow-x: auto;
+        border: 1px solid var(--inv-border);
+        border-radius: 15px;
+    }
 
     .invoice-table {
         width: 100%;
+        min-width: 620px;
+        margin: 0;
         border-collapse: separate;
         border-spacing: 0;
-        overflow: hidden;
-        border-radius: 14px;
-        border: 1px solid #334155;
     }
 
     .invoice-table thead {
-        background: linear-gradient(
-            90deg,
-            #166534,
-            #22c55e
-        );
+        background: linear-gradient(100deg, #166534, #15803d 55%, #22c55e);
     }
 
     .invoice-table th {
-        color: #ffffff !important;
-        padding: 15px;
-        font-size: 13px;
-        text-transform: uppercase;
-        border: none;
+        padding: 15px 13px;
+        border: 0;
+        color: #fff !important;
+        font-size: 10px;
+        font-weight: 850;
+        letter-spacing: .9px;
         text-align: center;
+        text-transform: uppercase;
         white-space: nowrap;
     }
 
     .invoice-table td {
-        background: #111827 !important;
-        color: #e5e7eb !important;
-        padding: 18px 15px;
-        border-top: 1px solid #334155;
-        vertical-align: middle;
+        padding: 16px 13px;
+        border-top: 1px solid var(--inv-border);
+        background: #0d1b2a !important;
+        color: #dce6f1 !important;
+        font-size: 13px;
         text-align: center;
+        vertical-align: middle;
+    }
+
+    .invoice-table tbody tr:nth-child(even) td {
+        background: #102235 !important;
     }
 
     .invoice-table tbody tr:hover td {
-        background: #1e293b !important;
+        background: #173248 !important;
     }
 
-
-    /* =========================
-       PRODUCT
-    ========================= */
-
     .product-name {
-        color: #ffffff !important;
-        font-weight: 700;
+        color: #f8fafc !important;
+        font-weight: 750;
     }
 
     .product-icon {
-        font-size: 20px;
         margin-right: 5px;
+        font-size: 17px;
     }
 
-    .watt-badge {
-        background: #f59e0b;
-        color: #111827 !important;
-        padding: 5px 12px;
-        border-radius: 20px;
-        font-weight: 700;
-        font-size: 12px;
-        display: inline-block;
-    }
-
+    .watt-badge,
     .qty-badge {
-        background: #2563eb;
-        color: white !important;
-        padding: 5px 12px;
-        border-radius: 20px;
-        font-weight: 700;
-        font-size: 12px;
         display: inline-block;
-    }
-
-    .price {
-        color: #cbd5e1 !important;
-        font-weight: 600;
-        white-space: nowrap;
-    }
-
-    .total-price {
-        color: #4ade80 !important;
+        padding: 6px 10px;
+        border-radius: 8px;
+        font-size: 11px;
         font-weight: 800;
         white-space: nowrap;
     }
 
+    .watt-badge {
+        background: rgba(245, 158, 11, .14);
+        color: #fcd34d !important;
+        border: 1px solid rgba(245, 158, 11, .25);
+    }
 
-    /* =========================
-       TOTALS
-    ========================= */
+    .qty-badge {
+        background: rgba(59, 130, 246, .14);
+        color: #93c5fd !important;
+        border: 1px solid rgba(59, 130, 246, .25);
+    }
+
+    .price {
+        color: #cbd5e1 !important;
+        font-weight: 650;
+        white-space: nowrap;
+    }
+
+    .total-price {
+        color: #86efac !important;
+        font-weight: 850;
+        white-space: nowrap;
+    }
 
     .totals-wrapper {
         display: flex;
         justify-content: flex-end;
-        margin-top: 30px;
+        margin-top: 26px;
     }
 
     .totals-box {
-        width: 350px;
+        width: min(100%, 360px);
+        padding: 17px;
+        border: 1px solid var(--inv-border);
+        border-radius: 17px;
+        background: #102235;
     }
 
     .total-row {
         display: flex;
         justify-content: space-between;
-        padding: 10px 5px;
-        color: #94a3b8;
-    }
-
-    .total-row strong {
-        color: white;
-    }
-
-    .grand-total {
-        margin-top: 10px;
-        padding: 18px 20px;
-        border-radius: 14px;
-        background: linear-gradient(
-            135deg,
-            #15803d,
-            #22c55e
-        );
-        color: white;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 18px;
-        font-weight: 800;
-        box-shadow: 0 8px 25px rgba(34, 197, 94, 0.25);
-    }
-
-
-    /* =========================
-       FOOTER
-    ========================= */
-
-    .invoice-footer {
-        margin-top: 45px;
-        padding-top: 25px;
-        border-top: 1px solid #334155;
-        display: flex;
-        justify-content: space-between;
-        align-items: end;
-    }
-
-    .thank-you h4 {
-        color: #22c55e;
-        font-weight: 800;
-    }
-
-    .thank-you p {
-        color: #64748b;
-        margin: 5px 0;
+        gap: 20px;
+        padding: 10px 4px;
+        color: var(--inv-muted);
         font-size: 13px;
     }
 
+    .total-row strong {
+        color: #f1f5f9;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .grand-total {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 12px;
+        padding: 17px;
+        border: 1px solid rgba(134, 239, 172, .25);
+        border-radius: 13px;
+        background: linear-gradient(120deg, #166534, #16a34a);
+        color: #fff;
+        font-size: 13px;
+        font-weight: 850;
+        box-shadow: 0 9px 24px rgba(22, 163, 74, .16);
+    }
+
+    .grand-total span:last-child {
+        font-size: 17px;
+        white-space: nowrap;
+    }
+
+    .invoice-footer {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 24px;
+        margin-top: 38px;
+        padding-top: 23px;
+        border-top: 1px solid var(--inv-border);
+    }
+
+    .thank-you h4 {
+        margin: 0;
+        color: var(--inv-green-light);
+        font-size: 17px;
+        font-weight: 850;
+    }
+
+    .thank-you p {
+        margin: 6px 0 0;
+        color: #94a3b8;
+        font-size: 12px;
+    }
+
     .signature {
-        text-align: center;
         width: 180px;
+        text-align: center;
     }
 
     .signature-line {
-        border-top: 1px solid #64748b;
         margin-bottom: 8px;
+        border-top: 1px solid #64748b;
     }
 
     .signature small {
-        color: #94a3b8;
+        color: var(--inv-muted);
+        font-size: 11px;
     }
 
+    @media (max-width: 700px) {
+        .invoice-page {
+            width: min(100% - 16px, 1050px);
+            margin: 14px auto 28px;
+        }
 
-    /* =========================
-       BUTTONS
-    ========================= */
+        .invoice-actions {
+            padding: 9px;
+            gap: 8px;
+        }
 
-    .invoice-actions {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 20px;
-    }
-
-    .invoice-actions .btn {
-        border-radius: 10px;
-        font-weight: 600;
-    }
-
-
-    /* =========================
-       RESPONSIVE
-    ========================= */
-
-    @media (max-width: 768px) {
+        .invoice-actions .btn {
+            flex: 1 1 145px;
+            font-size: 12px;
+            padding: 9px 10px;
+        }
 
         .invoice-header {
             flex-direction: column;
             align-items: flex-start;
-            gap: 25px;
+            padding: 23px 20px;
+            gap: 22px;
+        }
+
+        .company-area {
+            align-items: flex-start;
+            gap: 13px;
+            width: 100%;
+        }
+
+        .invoice-logo {
+            width: 68px;
+            height: 68px;
+            border-radius: 15px;
         }
 
         .invoice-title {
+            width: 100%;
             text-align: left;
         }
 
-        .billing-section {
-            flex-direction: column;
-            gap: 20px;
+        .invoice-title h1 {
+            font-size: 34px;
         }
 
         .invoice-body {
-            padding: 20px;
+            padding: 18px 14px;
         }
 
-        .invoice-table {
-            font-size: 12px;
+        .billing-section {
+            padding: 16px;
+            gap: 15px;
         }
 
-        .invoice-table th,
-        .invoice-table td {
-            padding: 10px 7px;
+        .customer-name {
+            font-size: 17px;
         }
 
         .totals-wrapper {
@@ -394,41 +469,116 @@
 
         .invoice-footer {
             flex-direction: column;
-            gap: 30px;
             align-items: flex-start;
+            gap: 28px;
         }
     }
 
-
-    /* =========================
-       PRINT
-    ========================= */
-
     @media print {
+        @page {
+            size: A4;
+            margin: 12mm;
+        }
 
         body {
-            background: white !important;
+            background: #fff !important;
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
         }
 
         .invoice-page {
+            width: 100%;
+            max-width: none;
             margin: 0;
-            max-width: 100%;
         }
 
-        .invoice-actions {
+        .invoice-actions,
+        .company-edit-btn {
             display: none !important;
         }
 
         .invoice-card {
+            border: 0;
+            border-radius: 0;
             box-shadow: none;
-            border: none;
+        }
+
+        .invoice-header,
+        .invoice-body,
+        .invoice-table,
+        .totals-box,
+        .billing-section {
+            break-inside: avoid;
+        }
+
+        .table-responsive {
+            overflow: visible;
+        }
+
+        .invoice-table {
+            min-width: 0;
+        }
+
+        .invoice-table th,
+        .invoice-table td {
+            padding: 9px 7px;
         }
     }
+    @media print {
+    @page {
+        size: A4;
+        margin: 10mm;
+    }
 
+    body * {
+        visibility: hidden !important;
+    }
+
+    #invoice-content,
+    #invoice-content * {
+        visibility: visible !important;
+    }
+
+    #invoice-content {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        background: white !important;
+        color: black !important;
+    }
+
+    .no-print,
+    .print-btn,
+    .pdf-btn,
+    .back-btn,
+    .company-edit-btn {
+        display: none !important;
+    }
+
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+    }
+
+    tr, img {
+        break-inside: avoid;
+    }
+}
+@media print {
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
 </style>
 
-
+<div id="invoice-content">
 <div class="invoice-page">
+    
 
 
     <!-- =========================
@@ -438,19 +588,20 @@
     <div class="invoice-actions">
 
         <button
+            type="button" class="no-print"
             onclick="window.print()"
-            class="btn btn-success"
         >
             🖨️ Print Invoice
         </button>
 
 
-        <a
-            href="{% url 'orders:invoice_pdf' order.id %}"
-            class="btn btn-dark"
+        <button
+            type="button"
+            class="btn btn-dark no-print"
+            onclick="window.print()"
         >
-            📄 Download PDF
-        </a>
+          📄 Download Stylish PDF
+        </button>
 
 
         <a
@@ -473,59 +624,58 @@
         <!-- HEADER -->
 
         <div class="invoice-header">
+<div class="company-area">
 
-            <div class="company-area">
+    {% if company and company.logo %}
+        <img
+            src="{{ company.logo.url }}"
+            class="invoice-logo"
+            alt="Company Logo"
+        >
+    {% else %}
+        {% load static %}
+        <img
+            src="{% static 'images/logo.png' %}"
+            class="invoice-logo"
+            alt="Company Logo"
+        >
+    {% endif %}
 
-                {% load static %}
+    <div>
+        <h1 class="company-name">
+            {{ company.name|default:"LED FACTORY" }}
+        </h1>
 
-                <img
-                    src="{% static 'images/logo.png' %}"
-                    class="invoice-logo"
-                    alt="LED Factory Logo"
-                >
+        <p class="company-tagline">
+            Premium LED Lighting Solutions
+        </p>
 
-
-                <div>
-
-                    <h1 class="company-name">
-                        LED FACTORY
-                    </h1>
-
-                    <p class="company-tagline">
-                        Premium LED Lighting Solutions
-                    </p>
-
-                    <div class="company-info">
-                        Mangla road Dina, Pakistan
-                        <br>
-                        📞 +92 3465811678
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="invoice-title">
-
-                <h1>
-                    INVOICE
-                </h1>
-
-                <div class="invoice-number">
-                    #INV-{{ order.id }}
-                </div>
-
-                <div class="invoice-date">
-                    {{ order.created_at|date:"d M Y" }}
-                    <br>
-                    {{ order.created_at|date:"h:i A" }}
-                </div>
-
-            </div>
-
+        <div class="company-info">
+            {{ company.address|default:"Mangla road Dina, Pakistan" }}
+            <br>
+            📞 {{ company.phone|default:"+92 3465811678" }}
         </div>
 
+        {% if company and company.email %}
+            <div class="company-info">{{ company.email }}</div>
+        {% endif %}
+        {% if company and company.website %}
+            <div class="company-info">{{ company.website }}</div>
+        {% endif %}
+
+        <a href="{% url 'edit_company' %}?next={{ request.path|urlencode }}"
+           class="company-edit-btn">
+            ✏️ Edit Company Details
+        </a>
+    </div>
+
+</div>
+
+            <div class="invoice-title">
+                <h1>INVOICE</h1>
+                <div class="invoice-number">Invoice #{{ order.id }}</div>
+            </div>
+        </div>
 
         <!-- BODY -->
 
@@ -588,6 +738,7 @@
                  PRODUCT TABLE
             ========================= -->
 
+            <div class="table-responsive">
             <table class="invoice-table">
 
                 <thead>
@@ -681,7 +832,7 @@
                 </tbody>
 
             </table>
-
+            </div>
 
             <!-- =========================
                  TOTALS
@@ -776,5 +927,5 @@
 
 </div>
 
-
+</div>
 {% endblock %}

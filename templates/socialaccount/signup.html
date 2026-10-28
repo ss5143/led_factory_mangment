@@ -1,57 +1,178 @@
+
 {% extends "auth_base.html" %}
 {% load i18n %}
 {% load socialaccount %}
 
 {% block content %}
-<div class="container py-5">
-  <div class="row justify-content-center">
-    <div class="col-md-7 col-lg-5">
-      <div class="card shadow-lg border-0 rounded-4">
-        <div class="card-header bg-dark text-white text-center py-4 rounded-top-4">
-          <h2 class="mb-1">💡 LED Factory</h2>
-          <p class="mb-0">Complete your Google sign in</p>
+<style>
+    .auth-wrapper {
+        min-height: 85vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 30px 15px;
+    }
+
+    .auth-card {
+        width: 100%;
+        max-width: 460px;
+        background: #111c2b;
+        border: 1px solid #263849;
+        border-radius: 22px;
+        padding: 32px;
+        color: #f8fafc;
+        box-shadow: 0 20px 60px rgba(0,0,0,.30);
+    }
+
+    .brand-icon {
+        width: 54px;
+        height: 54px;
+        margin: 0 auto 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 15px;
+        background: #22c55e;
+        color: #07130c;
+        font-size: 30px;
+        font-weight: 900;
+    }
+
+    .auth-card h2 {
+        font-weight: 800;
+        letter-spacing: 1px;
+    }
+
+    .auth-subtitle {
+        color: #94a3b8;
+        font-size: 14px;
+    }
+
+    .auth-card .form-label {
+        color: #dbe4ee;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .auth-card input,
+    .auth-card select {
+        width: 100%;
+        background: #0b1220;
+        border: 1px solid #334155;
+        color: #f8fafc;
+        border-radius: 10px;
+        padding: 12px 14px;
+    }
+
+    .auth-card input:focus,
+    .auth-card select:focus {
+        border-color: #22c55e;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(34,197,94,.12);
+    }
+
+    .auth-submit {
+        width: 100%;
+        border: none;
+        border-radius: 10px;
+        background: #22c55e;
+        color: #07130c;
+        padding: 13px;
+        font-weight: 800;
+        transition: .2s;
+    }
+
+    .auth-submit:hover {
+        background: #16a34a;
+        transform: translateY(-1px);
+    }
+
+    .auth-footer {
+        color: #94a3b8;
+        text-align: center;
+        margin-top: 24px;
+        margin-bottom: 0;
+        font-size: 14px;
+    }
+
+    .auth-footer a {
+        color: #4ade80;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .auth-footer a:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 480px) {
+        .auth-card {
+            padding: 24px 18px;
+        }
+    }
+</style>
+
+<div class="auth-wrapper">
+    <div class="auth-card">
+
+        <div class="text-center mb-4">
+            <div class="brand-icon">ϟ</div>
+            <h2>LED FACTORY</h2>
+            <p class="auth-subtitle">Complete your Google sign up</p>
         </div>
-        <div class="card-body p-4">
-          <p class="text-muted text-center">
-            You are signing in with your Google account.
-          </p>
 
-          {% if form.errors %}
-          <div class="alert alert-danger">
-            Please check the information and try again.
-            {{ form.errors }}
-          </div>
-          {% endif %}
+        <div class="alert alert-info small">
+            Your Google account is connected. Complete the required details below.
+        </div>
 
-          <form method="post" action="{% url 'socialaccount_signup' %}">
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                Please check the information and try again.
+                {{ form.errors }}
+            </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'socialaccount_signup' %}">
             {% csrf_token %}
-            {% for field in form %}
-              <div class="mb-3">
-                <label class="form-label" for="{{ field.id_for_label }}">
-                  {{ field.label }}
-                </label>
-                {{ field }}
-                {% for error in field.errors %}
-                  <div class="text-danger small">{{ error }}</div>
-                {% endfor %}
-              </div>
-            {% endfor %}
-            {% if redirect_field_value %}
-              <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
-            {% endif %}
-            <button class="btn btn-success w-100 py-2" type="submit">
-              Complete Sign Up
-            </button>
-          </form>
 
-          <div class="text-center mt-3">
+            {% for field in form %}
+                <div class="mb-3">
+                    <label class="form-label" for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+
+                    {{ field }}
+
+                    {% if field.help_text %}
+                        <div class="text-secondary small mt-1">
+                            {{ field.help_text }}
+                        </div>
+                    {% endif %}
+
+                    {% for error in field.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
+            {% if redirect_field_value %}
+                <input
+                    type="hidden"
+                    name="{{ redirect_field_name }}"
+                    value="{{ redirect_field_value }}"
+                >
+            {% endif %}
+
+            <button class="auth-submit" type="submit">
+                Complete Sign Up &rarr;
+            </button>
+        </form>
+
+        <p class="auth-footer">
+            Want to use another account?
             <a href="{% url 'account_login' %}">Back to Sign In</a>
-          </div>
-        </div>
-      </div>
+        </p>
+
     </div>
-  </div>
 </div>
 {% endblock %}
-
-

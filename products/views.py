@@ -1,4 +1,4 @@
-from decimal import Decimal
+﻿from decimal import Decimal
 from django.db import models
 
 from django.shortcuts import (
@@ -352,7 +352,7 @@ def home(request):
 
         product_profit = (
             OrderItem.objects
-            .filter(product=product)
+            .filter(product=product, order__user=request.user)
             .aggregate(
                 total=Sum("profit")
             )["total"]
@@ -569,17 +569,16 @@ def edit_product(request, id):
 # =========================================================
 # DELETE PRODUCT
 # =========================================================
-
 @login_required(login_url="login")
 def delete_product(request, id):
-
     product = get_object_or_404(
         Product,
         id=id,
         user=request.user,
     )
 
-    product.delete()
+    if request.method == "POST":
+        product.delete()
 
     return redirect("home")
 
@@ -661,3 +660,4 @@ def export_products_excel(request):
     wb.save(response)
 
     return response
+

@@ -10,6 +10,7 @@ urlpatterns = [
     path("service-worker.js", pwa_service_worker, name="pwa_service_worker"),
     path("accounts/", include("allauth.urls")),
     path("admin/", admin.site.urls),
+    path("company/", include("company.urls")),
 
     path("", include("products.urls")),
 

@@ -1,0 +1,139 @@
+
+{% extends "auth_base.html" %}
+{% load i18n %}
+{% load socialaccount %}
+
+{% block content %}
+<style>
+    .google-wrapper {
+        min-height: 85vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 30px 15px;
+    }
+
+    .google-card {
+        width: 100%;
+        max-width: 460px;
+        padding: 32px;
+        background: #111c2b;
+        border: 1px solid #263849;
+        border-radius: 22px;
+        color: #f8fafc;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0,0,0,.3);
+    }
+
+    .brand-icon {
+        width: 58px;
+        height: 58px;
+        margin: 0 auto 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 16px;
+        background: #22c55e;
+        color: #07130c;
+        font-size: 32px;
+        font-weight: 900;
+    }
+
+    .google-card h2 {
+        font-weight: 800;
+        letter-spacing: 1px;
+    }
+
+    .google-subtitle {
+        color: #94a3b8;
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .google-info {
+        background: #0b1220;
+        border: 1px solid #263849;
+        border-radius: 12px;
+        padding: 16px;
+        color: #cbd5e1;
+        font-size: 14px;
+        margin: 24px 0;
+    }
+
+    .google-btn {
+        width: 100%;
+        border: none;
+        border-radius: 10px;
+        padding: 14px;
+        background: #22c55e;
+        color: #07130c;
+        font-weight: 800;
+        transition: .2s;
+    }
+
+    .google-btn:hover {
+        background: #16a34a;
+        transform: translateY(-1px);
+    }
+
+    .back-link {
+        display: inline-block;
+        margin-top: 22px;
+        color: #4ade80;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .back-link:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 480px) {
+        .google-card {
+            padding: 25px 18px;
+        }
+    }
+</style>
+
+<div class="google-wrapper">
+    <div class="google-card">
+
+        <div class="brand-icon">ϟ</div>
+
+        <h2>LED FACTORY</h2>
+
+        <p class="google-subtitle">
+            Secure sign in with your Google account
+        </p>
+
+        <div class="google-info">
+            <div style="font-size:30px; margin-bottom:10px;">🌐</div>
+            <strong>Sign In Via Google</strong>
+            <p class="mt-2 mb-0">
+                You are about to sign in using your Google account.
+                Continue to securely authenticate with Google.
+            </p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            {% if process == "connect" %}
+                <button class="google-btn" type="submit">
+                    Connect Google Account &rarr;
+                </button>
+            {% else %}
+                <button class="google-btn" type="submit">
+                    Continue with Google &rarr;
+                </button>
+            {% endif %}
+        </form>
+
+        <a class="back-link" href="{% url 'account_login' %}">
+            &larr; Back to Sign In
+        </a>
+
+    </div>
+</div>
+{% endblock %}

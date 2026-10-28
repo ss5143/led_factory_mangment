@@ -18,26 +18,46 @@
                 {% csrf_token %}
 
                 {{ form.non_field_errors }}
+                
+<!-- CUSTOMER -->
+<div class="mb-4">
+    <label class="form-label fw-bold">👤 Select Customer</label>
 
-                <!-- CUSTOMER -->
+    <select name="customer_id" id="customer_id" class="form-select">
+        <option value="">Walk-in Customer</option>
+        {% for customer in customers %}
+        <option value="{{ customer.id }}">
+            {{ customer.name }} — {{ customer.phone }}
+        </option>
+        {% endfor %}
+    </select>
 
-                <div class="mb-4">
+    <div id="walkinNameBox" class="mt-3">
+        <label class="form-label">Walk-in Customer Name</label>
+        <input
+            type="text"
+            name="walkin_customer_name"
+            class="form-control"
+            placeholder="Customer ka naam likhein"
+        >
+    </div>
+</div>
 
-                    <label class="form-label fw-bold">
-                        👤 Customer Name
-                    </label>
+            <script>
+                 document.addEventListener("DOMContentLoaded", function () {
+                  const customerSelect = document.getElementById("customer_id");
+                  const walkinBox = document.getElementById("walkinNameBox");
 
-                    {{ form.customer_name }}
+                  function toggleWalkinName() {
+                  walkinBox.style.display = customerSelect.value === "" ? "block" : "none";
+                }
 
-                    {% for error in form.customer_name.errors %}
-                        <div class="text-danger">
-                            {{ error }}
-                        </div>
-                    {% endfor %}
+                  customerSelect.addEventListener("change", toggleWalkinName);
+                toggleWalkinName();
+             });
+             </script>
 
-                </div>
-
-
+                
                 <!-- PRODUCTS -->
 
                 <div class="mb-4">
